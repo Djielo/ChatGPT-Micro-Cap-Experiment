@@ -7,10 +7,10 @@ from datetime import datetime
 from pathlib import Path
 
 # Ajouter les chemins des modules
-sys.path.append('core_orchestrator')
-sys.path.append('hrm_ai')
-sys.path.append('deepseek_integration')
-sys.path.append('ibkr_trading')
+sys.path.append('enhanced_system/core_orchestrator')
+sys.path.append('enhanced_system/hrm_ai')
+sys.path.append('enhanced_system/deepseek_integration')
+sys.path.append('enhanced_system/ibkr_trading')
 
 from core_orchestrator.orchestrator import TradingOrchestrator
 

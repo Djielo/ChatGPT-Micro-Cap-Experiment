@@ -7,6 +7,9 @@ from datetime import datetime
 import json
 
 # Configuration
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
 from config import *
 
 class TradingOrchestrator:
@@ -206,7 +209,7 @@ class TradingOrchestrator:
         """Charge le portefeuille du système original"""
         try:
             import pandas as pd
-            df = pd.read_csv("Scripts and CSV Files/chatgpt_portfolio_update.csv")
+            df = pd.read_csv("MCExperiment_system/chatgpt_portfolio_update.csv")
             # Obtenir les dernières données pour chaque ticker
             latest_data = []
             for ticker in df['Ticker'].unique():

@@ -7,6 +7,9 @@ from typing import Dict, List, Any
 import pandas as pd
 
 # Configuration
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
 from config import *
 
 class DeepSeekAnalyzer:
@@ -191,7 +194,7 @@ class DeepSeekAnalyzer:
         Charge les données du portefeuille original
         """
         try:
-            df = pd.read_csv("../Scripts and CSV Files/chatgpt_portfolio_update.csv")
+            df = pd.read_csv("MCExperiment_system/chatgpt_portfolio_update.csv")
             
             # Obtenir les dernières données pour chaque ticker
             portfolio_data = []

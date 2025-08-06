@@ -6,6 +6,9 @@ import pandas as pd
 import numpy as np
 
 # Configuration
+import sys
+import os
+sys.path.append(os.path.dirname(__file__))
 from config import *
 
 class HRMAnalyzer:
@@ -198,7 +201,7 @@ class HRMAnalyzer:
         Charge les données du portefeuille original
         """
         try:
-            df = pd.read_csv("../Scripts and CSV Files/chatgpt_portfolio_update.csv")
+            df = pd.read_csv("MCExperiment_system/chatgpt_portfolio_update.csv")
             
             # Obtenir les dernières données pour chaque ticker
             portfolio_data = []

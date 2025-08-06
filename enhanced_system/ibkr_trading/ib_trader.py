@@ -11,6 +11,7 @@ from ibapi.order import Order
 
 # Configuration
 from config import *
+from trading_fees import TradingFeesManager
 
 class IBTrader(EWrapper, EClient):
     """
@@ -23,6 +24,10 @@ class IBTrader(EWrapper, EClient):
         self.connected = False
         self.orders = []
         self.positions = {}
+        
+        # Initialiser le gestionnaire de frais
+        self.fees_manager = TradingFeesManager()
+        
         self.logger.info("🏦 Module IBKR initialisé")
         
     def setup_logging(self):
@@ -100,7 +105,7 @@ class IBTrader(EWrapper, EClient):
     
     async def execute_single_trade(self, ticker: str, action: str, decision: Dict) -> Dict:
         """
-        Exécute un trade individuel
+        Exécute un trade individuel avec calcul des frais
         """
         try:
             # Créer le contrat
@@ -108,6 +113,19 @@ class IBTrader(EWrapper, EClient):
             
             # Créer l'ordre
             order = self.create_order(action, decision)
+            
+            # Calculer la taille de position
+            shares = self.calculate_position_size(decision)
+            
+            # Simuler le prix (en production, vous récupéreriez le vrai prix)
+            price_per_share = 5.0  # Prix simulé - à remplacer par vraie donnée
+            
+            # Calculer les frais de trading
+            fees = self.fees_manager.calculate_commission(
+                shares=shares,
+                price_per_share=price_per_share,
+                order_type='STOCK'
+            )
             
             # Simuler l'exécution (pour l'instant)
             # En production, vous utiliseriez: self.placeOrder(orderId, contract, order)
@@ -118,10 +136,14 @@ class IBTrader(EWrapper, EClient):
                 'status': 'SIMULATED',
                 'confidence': decision.get('confidence', 0.5),
                 'reason': decision.get('reason', ''),
+                'shares': shares,
+                'price_per_share': price_per_share,
+                'total_value': shares * price_per_share,
+                'fees': fees,
                 'timestamp': time.time()
             }
             
-            self.logger.info(f"📊 Trade simulé: {ticker} {action}")
+            self.logger.info(f"📊 Trade simulé: {ticker} {action} - Frais: ${fees['total_fees']}")
             return trade_result
             
         except Exception as e:
