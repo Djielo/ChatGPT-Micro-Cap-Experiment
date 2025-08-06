@@ -1,0 +1,402 @@
+[
+  {
+    "input_data": {
+      "ticker": "DLPN",
+      "date": "2025-08-06",
+      "price_at_analysis": 1.1200000047683716,
+      "price_7d_before": 1.2000000476837158,
+      "price_change_pct": -6.666669978035689,
+      "market_cap": 12508272,
+      "sector": "Communication Services",
+      "industry": "Advertising Agencies",
+      "volume_avg_7d": 55634,
+      "volume_current": 101641,
+      "pe_ratio": 3.111111,
+      "beta": 2.303,
+      "short_ratio": 0.77,
+      "cash_per_share": 0.634,
+      "debt_to_equity": 298.159
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 1.1200000047683716,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:26:05.549765",
+      "status": "fallback"
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "REE",
+      "date": "2025-08-06",
+      "price_at_analysis": 0.6916000247001648,
+      "price_7d_before": 0.7139999866485596,
+      "price_change_pct": -3.1372496312692983,
+      "market_cap": 19531062,
+      "sector": "Consumer Cyclical",
+      "industry": "Auto Parts",
+      "volume_avg_7d": 72785,
+      "volume_current": 21500,
+      "pe_ratio": -0.3060177,
+      "beta": 2.671,
+      "short_ratio": 3.41,
+      "cash_per_share": 2.559,
+      "debt_to_equity": 219.007
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 0.6916000247001648,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:27:20.670002",
+      "status": "fallback"
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "MERC",
+      "date": "2025-08-06",
+      "price_at_analysis": 3.2049999237060547,
+      "price_7d_before": 4.260000228881836,
+      "price_change_pct": -24.765264049121836,
+      "market_cap": 214678912,
+      "sector": "Basic Materials",
+      "industry": "Paper & Paper Products",
+      "volume_avg_7d": 1682998,
+      "volume_current": 807690,
+      "pe_ratio": -16.868422,
+      "beta": 1.095,
+      "short_ratio": 2.1,
+      "cash_per_share": 2.191,
+      "debt_to_equity": 346.099
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 3.2049999237060547,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:28:36.896206",
+      "status": "fallback"
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "PLUG",
+      "date": "2025-08-06",
+      "price_at_analysis": 1.465000033378601,
+      "price_7d_before": 1.590000033378601,
+      "price_change_pct": -7.8616350550878105,
+      "market_cap": 1680853248,
+      "sector": "Industrials",
+      "industry": "Electrical Equipment & Parts",
+      "volume_avg_7d": 41474890,
+      "volume_current": 25725234,
+      "pe_ratio": -2.5701756,
+      "beta": 2.351,
+      "short_ratio": 3.41,
+      "cash_per_share": 0.28,
+      "debt_to_equity": 51.057
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 1.465000033378601,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:29:51.500422",
+      "status": "fallback"
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "MOTS",
+      "date": "2025-08-06",
+      "price_at_analysis": 9.999999747378752e-05,
+      "price_7d_before": 9.999999747378752e-05,
+      "price_change_pct": 0.0,
+      "market_cap": 639,
+      "sector": "Healthcare",
+      "industry": "Medical Devices",
+      "volume_avg_7d": 44,
+      "volume_current": 100,
+      "pe_ratio": -5.694761e-06,
+      "beta": 1.008,
+      "short_ratio": 0.14,
+      "cash_per_share": 0.857,
+      "debt_to_equity": 79.491
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 9.999999747378752e-05,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:31:06.849358",
+      "status": "fallback"
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "CLNE",
+      "date": "2025-08-06",
+      "price_at_analysis": 2.015000104904175,
+      "price_7d_before": 2.0899999141693115,
+      "price_change_pct": -3.5885077677118487,
+      "market_cap": 445278752,
+      "sector": "Energy",
+      "industry": "Oil & Gas Refining & Marketing",
+      "volume_avg_7d": 1254186,
+      "volume_current": 900304,
+      "pe_ratio": -22.38889,
+      "beta": 2.656,
+      "short_ratio": 3.26,
+      "cash_per_share": 1.026,
+      "debt_to_equity": 61.091
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 2.015000104904175,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:32:22.419474",
+      "status": "fallback"
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "OSIS",
+      "date": "2025-08-06",
+      "price_at_analysis": 220.27999877929688,
+      "price_7d_before": 225.22000122070312,
+      "price_change_pct": -2.1934119592537082,
+      "market_cap": 3698192896,
+      "sector": "Technology",
+      "industry": "Electronic Components",
+      "volume_avg_7d": 123408,
+      "volume_current": 50456,
+      "pe_ratio": 22.408953,
+      "beta": 1.307,
+      "short_ratio": 8.94,
+      "cash_per_share": 5.708,
+      "debt_to_equity": 75.183
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 220.27999877929688,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:33:36.873707",
+      "status": "fallback"
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "INDO",
+      "date": "2025-08-06",
+      "price_at_analysis": 3.0199999809265137,
+      "price_7d_before": 3.049999952316284,
+      "price_change_pct": -0.9836056347144335,
+      "market_cap": 43823520,
+      "sector": "Energy",
+      "industry": "Oil & Gas E&P",
+      "volume_avg_7d": 1019704,
+      "volume_current": 844030,
+      "pe_ratio": -4.3768115,
+      "beta": -0.666,
+      "short_ratio": 0.08,
+      "cash_per_share": 0.329,
+      "debt_to_equity": 4.847
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 3.0199999809265137,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:34:51.460954",
+      "status": "fallback"
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "BIIB",
+      "date": "2025-08-06",
+      "price_at_analysis": 129.50999450683594,
+      "price_7d_before": 127.9000015258789,
+      "price_change_pct": 1.2587904313912537,
+      "market_cap": 18988109824,
+      "sector": "Healthcare",
+      "industry": "Drug Manufacturers - General",
+      "volume_avg_7d": 1879099,
+      "volume_current": 821494,
+      "pe_ratio": 7.7737093,
+      "beta": 0.133,
+      "short_ratio": 3.08,
+      "cash_per_share": 18.817,
+      "debt_to_equity": 37.397
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 129.50999450683594,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:36:06.749019",
+      "status": "fallback"
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "TAIT",
+      "date": "2025-08-06",
+      "price_at_analysis": 2.119999885559082,
+      "price_7d_before": 2.200000047683716,
+      "price_change_pct": -3.6363709268489552,
+      "market_cap": 12764901,
+      "sector": "Technology",
+      "industry": "Electronics & Computer Distribution",
+      "volume_avg_7d": 8404,
+      "volume_current": 2534,
+      "pe_ratio": null,
+      "beta": 0.367,
+      "short_ratio": 0.22,
+      "cash_per_share": 1.464,
+      "debt_to_equity": null
+    },
+    "deepseek_analysis": {
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "target_price_6m": 2.119999885559082,
+      "catalyseurs": [
+        "Analyse automatique indisponible"
+      ],
+      "thesis": "Analyse technique de base seulement",
+      "risk_factors": [
+        "API DeepSeek temporairement indisponible"
+      ],
+      "conviction_level": "mod\u00e9r\u00e9e",
+      "reasoning_steps": [
+        "Fallback: donn\u00e9es techniques uniquement"
+      ]
+    },
+    "api_stats": {
+      "tokens_used": 0,
+      "timestamp": "2025-08-06T21:37:21.031092",
+      "status": "fallback"
+    }
+  }
+]

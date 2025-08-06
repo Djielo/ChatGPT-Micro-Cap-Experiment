@@ -11,6 +11,9 @@ import os
 sys.path.append(os.path.dirname(__file__))
 from config import *
 
+# Import de l'intégrateur HRM financier
+from financial_hrm_integration import FinancialHRMIntegrator
+
 class HRMAnalyzer:
     """
     Module HRM pour l'analyse hiérarchique des micro-caps
@@ -19,6 +22,9 @@ class HRMAnalyzer:
     def __init__(self):
         self.setup_logging()
         self.logger.info("🧠 Module HRM initialisé")
+        
+        # Initialiser l'intégrateur HRM financier
+        self.hrm_integrator = FinancialHRMIntegrator()
         
         # Simulation du modèle HRM (à remplacer par votre vrai HRM)
         self.model_loaded = self.load_hrm_model()
@@ -78,24 +84,17 @@ class HRMAnalyzer:
     async def analyze_microcap(self, ticker_data: Dict) -> Dict:
         """
         Analyse hiérarchique d'une micro-cap
-        Utilise les 4 niveaux d'analyse HRM
+        Utilise l'intégrateur HRM financier
         """
         ticker = ticker_data['Ticker']
         
         try:
-            # Niveau 1: Analyse macro-économique
-            macro_analysis = await self.analyze_macro_environment(ticker_data)
+            # Utiliser l'intégrateur HRM pour l'analyse hiérarchique
+            hrm_analysis = self.hrm_integrator.analyze_microcap_hierarchical(ticker_data)
             
-            # Niveau 2: Analyse sectorielle
-            sector_analysis = await self.analyze_sector_trends(ticker_data)
-            
-            # Niveau 3: Analyse d'entreprise
-            company_analysis = await self.analyze_company_fundamentals(ticker_data)
-            
-            # Niveau 4: Décision de trading
-            trade_decision = await self.make_trading_decision(
-                macro_analysis, sector_analysis, company_analysis
-            )
+            # Extraire les résultats
+            hierarchical_analysis = hrm_analysis.get('hierarchical_analysis', {})
+            decision = hrm_analysis.get('decision', {})
             
             return {
                 'ticker': ticker,

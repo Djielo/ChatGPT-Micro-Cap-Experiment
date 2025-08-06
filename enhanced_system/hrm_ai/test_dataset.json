@@ -1,0 +1,121 @@
+[
+  {
+    "input_data": {
+      "ticker": "SAVA",
+      "date": "2025-08-06",
+      "price_at_analysis": 2.3582000732421875,
+      "price_7d_before": 2.1600000858306885,
+      "price_change_pct": 9.175924978506455,
+      "market_cap": 113919696,
+      "sector": "Healthcare",
+      "industry": "Biotechnology",
+      "volume_avg_7d": 797398,
+      "volume_current": 277490,
+      "high_52w": 33.98,
+      "low_52w": 1.15,
+      "pe_ratio": -1.3323164,
+      "beta": -2.058,
+      "short_ratio": 5.84,
+      "cash_per_share": 2.429,
+      "debt_to_equity": null
+    },
+    "analysis": {
+      "decision_factors": [
+        "Performance positive r\u00e9cente (+5%)"
+      ],
+      "technical_score": 2,
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "reasoning_steps": [
+        "Analyse de SAVA dans le secteur Healthcare",
+        "Performance 7j: 9.2%",
+        "Market cap: $113,919,696",
+        "Score technique: 2/5"
+      ]
+    },
+    "result_simulation": {
+      "price_after_10d": 2.24,
+      "pnl_percent": -4.95
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "COCP",
+      "date": "2025-08-06",
+      "price_at_analysis": 1.7001999616622925,
+      "price_7d_before": 1.6699999570846558,
+      "price_change_pct": 1.808383554114416,
+      "market_cap": 17297494,
+      "sector": "Healthcare",
+      "industry": "Biotechnology",
+      "volume_avg_7d": 491522,
+      "volume_current": 23737,
+      "high_52w": 3.26,
+      "low_52w": 1.12,
+      "pe_ratio": -0.76932126,
+      "beta": 2.066,
+      "short_ratio": 0.09,
+      "cash_per_share": 0.68,
+      "debt_to_equity": 23.727
+    },
+    "analysis": {
+      "decision_factors": [
+        "Petite capitalisation (<100M$)"
+      ],
+      "technical_score": 1,
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "reasoning_steps": [
+        "Analyse de COCP dans le secteur Healthcare",
+        "Performance 7j: 1.8%",
+        "Market cap: $17,297,494",
+        "Score technique: 1/5"
+      ]
+    },
+    "result_simulation": {
+      "price_after_10d": 1.49,
+      "pnl_percent": -12.4
+    }
+  },
+  {
+    "input_data": {
+      "ticker": "MYSZ",
+      "date": "2025-08-06",
+      "price_at_analysis": 1.215000033378601,
+      "price_7d_before": 1.3300000429153442,
+      "price_change_pct": -8.646616979399829,
+      "market_cap": 3770242,
+      "sector": "Technology",
+      "industry": "Software - Application",
+      "volume_avg_7d": 284358,
+      "volume_current": 7350,
+      "high_52w": 9.4,
+      "low_52w": 1.011,
+      "pe_ratio": -1.1462265,
+      "beta": -0.179,
+      "short_ratio": 0.58,
+      "cash_per_share": 1.191,
+      "debt_to_equity": 3.798
+    },
+    "analysis": {
+      "decision_factors": [
+        "Performance n\u00e9gative r\u00e9cente (-5%)",
+        "Petite capitalisation (<100M$)",
+        "Secteur porteur: Technology"
+      ],
+      "technical_score": 0,
+      "decision": "HOLD",
+      "confidence": 0.5,
+      "reasoning_steps": [
+        "Analyse de MYSZ dans le secteur Technology",
+        "Performance 7j: -8.6%",
+        "Market cap: $3,770,242",
+        "Score technique: 0/5"
+      ]
+    },
+    "result_simulation": {
+      "price_after_10d": 1.29,
+      "pnl_percent": 6.14
+    }
+  }
+]

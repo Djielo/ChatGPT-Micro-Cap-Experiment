@@ -1,0 +1,30 @@
+{
+  "current_day": 2,
+  "ds_percentage": 90,
+  "hrm_percentage": 10,
+  "performance_history": [
+    {
+      "day": 1,
+      "date": "2025-08-06",
+      "deepseek_metrics": {
+        "avg_confidence": 0.5,
+        "decision_distribution": {
+          "HOLD": 3
+        },
+        "count": 3,
+        "system": "deepseek"
+      },
+      "hrm_metrics": {
+        "avg_confidence": 0.0,
+        "decision_distribution": {},
+        "count": 0,
+        "system": "hrm"
+      },
+      "allocation": {
+        "ds_percentage": 90,
+        "hrm_percentage": 10
+      }
+    }
+  ],
+  "last_updated": "2025-08-06T21:40:59.173065"
+}
