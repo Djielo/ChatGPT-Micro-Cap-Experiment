@@ -1,0 +1,6 @@
+# IBKR Module Dependencies
+ibapi>=9.81.0
+asyncio
+threading
+time
+logging 

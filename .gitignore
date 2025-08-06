@@ -1,0 +1,390 @@
+# 🚀 Micro-Cap Experiment - .gitignore
+
+# ========================================
+# PYTHON - Classiques
+# ========================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# ========================================
+# PROJET SPÉCIFIQUE - Micro-Cap
+# ========================================
+
+# Clés API et Credentials
+**/config.py
+**/.env
+**/credentials.json
+**/api_keys.txt
+**/secrets.json
+
+# DeepSeek API
+deepseek_integration/.env
+deepseek_integration/api_keys.txt
+deepseek_integration/credentials.json
+
+# IBKR Configuration
+ibkr_trading/.env
+ibkr_trading/ib_config.json
+ibkr_trading/credentials.json
+
+# HRM Configuration
+hrm_ai/.env
+hrm_ai/model_weights/
+hrm_ai/checkpoints/
+hrm_ai/saved_models/
+
+# Orchestrateur
+core_orchestrator/.env
+core_orchestrator/credentials.json
+
+# ========================================
+# DONNÉES FINANCIÈRES
+# ========================================
+
+# Données sensibles du portefeuille
+**/portfolio_data/
+**/trading_data/
+**/backtest_results/
+**/live_trades/
+**/paper_trades/
+
+# Fichiers de trading
+**/trades_log/
+**/execution_logs/
+**/order_history/
+
+# Données de marché
+**/market_data/
+**/price_data/
+**/volume_data/
+
+# ========================================
+# LOGS ET MONITORING
+# ========================================
+
+# Logs du système
+*.log
+logs/
+enhanced_trading.log
+trading_system.log
+orchestrator.log
+
+# Logs spécifiques par module
+hrm_ai/*.log
+deepseek_integration/*.log
+ibkr_trading/*.log
+core_orchestrator/*.log
+
+# Monitoring et dashboards
+monitoring/
+dashboard/
+metrics/
+
+# ========================================
+# BACKUP ET SAUVEGARDE
+# ========================================
+
+# Sauvegardes automatiques
+enhanced_system_data/
+backup/
+backups/
+daily_backup_*.json
+weekly_backup_*.json
+
+# Snapshots du système
+snapshots/
+system_snapshots/
+
+# ========================================
+# CACHE ET TEMPORAIRES
+# ========================================
+
+# Cache Python
+.cache/
+cache/
+
+# Fichiers temporaires
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Fichiers de session
+*.session
+*.sess
+
+# ========================================
+# IDE ET ÉDITEURS
+# ========================================
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ========================================
+# SYSTÈME D'EXPLOITATION
+# ========================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ========================================
+# DÉVELOPPEMENT ET TESTS
+# ========================================
+
+# Tests temporaires
+test_*.py
+*_test.py
+tests/temp/
+tests/tmp/
+
+# Fichiers de debug
+debug/
+debug_*.py
+*.debug
+
+# Profiling
+*.prof
+*.profile
+
+# ========================================
+# DÉPLOIEMENT
+# ========================================
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Kubernetes
+*.yaml
+*.yml
+k8s/
+
+# ========================================
+# DOCUMENTATION GÉNÉRÉE
+# ========================================
+
+# Documentation auto-générée
+docs/build/
+docs/_build/
+docs/generated/
+
+# ========================================
+# FICHIERS SPÉCIFIQUES AU PROJET
+# ========================================
+
+# Fichiers de configuration sensibles
+**/secrets/
+**/private/
+**/confidential/
+
+# Données de test avec vraies valeurs
+**/test_data_with_real_values/
+**/sample_data_with_credentials/
+
+# Fichiers de migration de base de données
+**/migrations/
+**/db_migrations/
+
+# ========================================
+# EXCEPTIONS - FICHIERS À GARDER
+# ========================================
+
+# Garder les fichiers de config d'exemple
+!**/config.example.py
+!**/config.template.py
+!**/.env.example
+!**/credentials.example.json
+
+# Garder les fichiers de documentation
+!README.md
+!SYSTEME_AMELIORE_SETUP.md
+!docs/**/*.md
+
+# Garder les scripts de test (mais pas les données)
+!tests/
+!test_*.py
+!*_test.py 
