@@ -34,6 +34,40 @@ class DeepSeekMicroCapAnalyzer:
         """Configure le logging"""
         self.logger = logging.getLogger('DeepSeekMicroCapAnalyzer')
     
+    def _calculate_min_confidence_for_market_cap(self, market_cap: float) -> float:
+        """
+        Calcule la confidence minimum requise selon la market cap
+        Échelle glissante : Plus petite MC = Plus haute confidence requise
+        avec une variation de 5% de confiance quelque soit la market cap
+        
+        50-120M MC  => 80-77% confidence
+        121-190M MC => 76-73% confidence  
+        191-260M MC => 72-69% confidence
+        261-300M MC => 68-65% confidence
+        
+        Args:
+            market_cap: Market cap en USD
+        
+        Returns:
+            Confidence minimum requise (0.0-1.0)
+        """
+        # Convertir en millions pour faciliter les calculs
+        mc_millions = market_cap / 1_000_000
+        
+        # Interpolation linéaire continue sur toute la plage 50M-300M
+        # 50M => 80%, 300M => 65% (pente continue)
+        if 50 <= mc_millions <= 300:
+            # Calcul linéaire simple : y = mx + b
+            # 50M => 0.80, 300M => 0.65
+            # Pente = (0.65 - 0.80) / (300 - 50) = -0.15 / 250 = -0.0006
+            slope = (0.65 - 0.80) / (300 - 50)
+            min_confidence = 0.80 + slope * (mc_millions - 50)
+        else:
+            # Hors range, retourner une valeur par défaut élevée
+            min_confidence = 0.85  # Très restrictif pour hors range
+        
+        return round(min_confidence, 3)
+    
     async def analyze_microcap_with_deepseek(self, ticker_data: Dict) -> Dict:
         """
         Analyse une micro-cap avec DeepSeek
@@ -64,16 +98,57 @@ class DeepSeekMicroCapAnalyzer:
     
     def create_analysis_prompt(self, ticker_data: Dict) -> str:
         """
-        Crée le prompt optimisé pour DeepSeek selon la méthodologie MicroCapExperiment
+        Crée le prompt optimisé pour DeepSeek avec le framework super-prompt
         """
         ticker = ticker_data.get('ticker', 'UNKNOWN')
         
-        prompt = f"""Tu es un analyste financier expert en micro-caps, spécialisé dans l'identification d'opportunités à fort potentiel.
+        prompt = f"""RÔLE
+Tu es un expert en analyse financière micro-caps avec 15+ ans d'expérience en investissement spéculatif.
+Tu disposes des compétences suivantes :
+- Analyse fondamentale approfondie (bilans, cashflow, catalyseurs)
+- Détection de signaux techniques précoces (volume, momentum, sentiment)
+- Évaluation des risques asymétriques et potentiels de croissance explosive
+- Connaissance sectorielle spécialisée (biotech, tech, énergie, mining)
+- Identification de catalyseurs temporels (FDA, earnings, contrats, M&A)
 
-MISSION : Analyse la micro-cap {ticker} et donne une recommandation d'investissement.
+Le contexte d'investissement est celui de micro-caps OPTIMALES (50M$ avec 80% de confiance minimum - 300M$ avec 65% de confiance mini) avec recherche d'opportunités 
+asymétriques à haute conviction (65%-80% confidence). Nous ciblons des entreprises avec suffisamment de liquidité 
+pour éviter les penny stocks, mais assez petites pour capturer la volatilité profitable. Style d'analyse inspiré du projet "MicroCapExperiment" 
+qui a généré +40% de performance en identifiant des catalyseurs précoces et des valorisations décotées.
 
-DONNÉES FINANCIÈRES :
-- Ticker: {ticker}
+CRITÈRES DE SÉLECTION STRICTS :
+- Market Cap: OBLIGATOIREMENT entre 50M$ et 300M$
+- Confidence: UNIQUEMENT entre 0.65 et 0.80 (high conviction trades)
+- Liquidité: Volume quotidien > 100,000 actions
+- Éviter: Penny stocks (<$1), sociétés en faillite, OTC markets
+
+TÂCHES
+Je souhaite une analyse complète et une recommandation d'investissement pour la micro-cap {ticker}, 
+en déterminant si elle présente une opportunité d'achat, de vente, ou de position neutre, 
+avec un niveau de conviction justifié et un prix cible 15 jours.
+
+FORMAT DE RÉPONSE ATTENDU
+Structure JSON stricte avec :
+- decision: Action claire (BUY/SELL/HOLD)
+- confidence: Score numérique 0.0-1.0 basé sur la solidité des arguments
+- target_price_15j: Prix objectif réaliste dans 15 jours
+- catalyseurs: Liste concrète d'événements identifiables dans les 15 jours
+- thesis: Thèse d'investissement synthétique en 2-3 phrases percutantes
+- risk_factors: Risques spécifiques et quantifiables
+- conviction_level: Niveau de conviction (haute/modérée/spéculative)
+- reasoning_steps: Processus de raisonnement étape par étape
+
+POINTS DE VIGILANCE
+Assure-toi de justifier ta réponse en te basant sur des métriques financières concrètes.
+Ta réponse ne doit surtout pas :
+- Donner des recommandations génériques sans analyse spécifique au ticker
+- Ignorer les risques ou présenter uniquement les aspects positifs
+- Proposer des prix cibles irréalistes non justifiés par les fondamentaux
+- Omettre l'analyse de la situation de trésorerie et du runway financier
+- Négliger l'analyse sectorielle et concurrentielle spécifique
+
+CONTEXTE
+Données financières actuelles pour {ticker} :
 - Prix actuel: ${ticker_data.get('price_at_analysis', 0):.2f}
 - Variation 7j: {ticker_data.get('price_change_pct', 0):.1f}%
 - Market Cap: ${ticker_data.get('market_cap', 0):,}
@@ -85,29 +160,12 @@ DONNÉES FINANCIÈRES :
 - Short Ratio: {ticker_data.get('short_ratio', 'N/A')}
 - Cash/Share: ${ticker_data.get('cash_per_share', 0):.2f}
 
-CRITÈRES D'ANALYSE (style MicroCapExperiment) :
-1. CATALYSEURS : Y a-t-il des événements identifiables (FDA, earnings, contrats) dans les 6 mois ?
-2. VALORISATION : La société est-elle sous-évaluée vs sa trésorerie/pipeline ?
-3. MOMENTUM : Volume, performance récente, potentiel squeeze ?
-4. RISQUE/RENDEMENT : Potentiel asymétrique (2x-10x) vs risques ?
+EXEMPLES
+Exemple de catalyseurs forts : "FDA approval Phase 2 attendue Q1 2025", "Earnings Q4 avec guidance positive", "Contrat gouvernemental $50M en négociation"
+Exemple de thesis BUY : "{ticker} bénéficie d'un pipeline robuste en oncologie avec 3 candidats en Phase 2, valorisation décotée à 2x P/E vs peers à 8x, catalyseur FDA imminent."
+Exemple de risk_factors : "Dilution potentielle si levée de fonds nécessaire", "Concurrence accrue dans le segment", "Dépendance à un client unique"
 
-RÉPONSE REQUISE (format JSON) :
-{{
-    "decision": "BUY|SELL|HOLD",
-    "confidence": 0.0-1.0,
-    "target_price_6m": 0.00,
-    "catalyseurs": ["liste des catalyseurs identifiés"],
-    "thesis": "Thèse d'investissement en 2-3 phrases",
-    "risk_factors": ["principaux risques"],
-    "conviction_level": "haute|modérée|spéculative",
-    "reasoning_steps": [
-        "Étape 1 de raisonnement",
-        "Étape 2 de raisonnement", 
-        "Étape 3 de raisonnement"
-    ]
-}}
-
-Analyse maintenant {ticker} selon ces critères."""
+Analyse maintenant {ticker} selon ce framework rigoureux."""
 
         return prompt
     
@@ -122,7 +180,7 @@ Analyse maintenant {ticker} selon ces critères."""
             }
             
             payload = {
-                'model': 'deepseek-reasoner',  # Modèle de raisonnement
+                'model': 'deepseek-chat',  # Chat model plus stable pour JSON
                 'messages': [
                     {
                         'role': 'user',
@@ -190,19 +248,54 @@ Analyse maintenant {ticker} selon ces critères."""
             # Parser le JSON retourné par DeepSeek
             analysis = json.loads(ds_response['content'])
             
+            # Validation des critères stricts
+            confidence = float(analysis.get('confidence', 0.5))
+            market_cap = ticker_data.get('market_cap', 0)
+            price = ticker_data.get('price_at_analysis', 0)
+            volume = ticker_data.get('volume_current', 0)
+            
+            # Calcul de la confidence minimum requise selon la market cap
+            min_confidence_required = self._calculate_min_confidence_for_market_cap(market_cap)
+            
+            # Calcul de la plage acceptable (±5% de flexibilité)
+            min_confidence_flexible = max(0.60, min_confidence_required - 0.05)  # Min absolu 60%
+            max_confidence_flexible = 1.0  # Pas de limite haute (85-90% = excellent!)
+            
+            # Vérifications de qualité avec échelle glissante et flexibilité
+            quality_check = {
+                'market_cap_valid': 50_000_000 <= market_cap <= 300_000_000,
+                'confidence_valid': min_confidence_flexible <= confidence <= max_confidence_flexible,
+                'confidence_required_base': min_confidence_required,
+                'confidence_required_flexible': min_confidence_flexible,
+                'confidence_actual': confidence,
+                'confidence_margin': abs(confidence - min_confidence_required),
+                'price_valid': price >= 1.0,  # Éviter penny stocks
+                'volume_valid': volume >= 100_000,  # Liquidité suffisante
+                'meets_criteria': False
+            }
+            
+            # Marquer comme valide seulement si TOUS les critères sont respectés
+            quality_check['meets_criteria'] = all([
+                quality_check['market_cap_valid'],
+                quality_check['confidence_valid'],
+                quality_check['price_valid'],
+                quality_check['volume_valid']
+            ])
+            
             # Structurer pour le dataset HRM
             structured_analysis = {
                 'input_data': ticker_data,
                 'deepseek_analysis': {
                     'decision': analysis.get('decision', 'HOLD'),
-                    'confidence': float(analysis.get('confidence', 0.5)),
-                    'target_price_6m': float(analysis.get('target_price_6m', 0)),
+                    'confidence': confidence,
+                    'target_price_15j': float(analysis.get('target_price_15j', 0)),
                     'catalyseurs': analysis.get('catalyseurs', []),
                     'thesis': analysis.get('thesis', ''),
                     'risk_factors': analysis.get('risk_factors', []),
                     'conviction_level': analysis.get('conviction_level', 'modérée'),
                     'reasoning_steps': analysis.get('reasoning_steps', [])
                 },
+                'quality_check': quality_check,
                 'api_stats': {
                     'tokens_used': ds_response.get('tokens', 0),
                     'timestamp': datetime.now().isoformat()
@@ -224,7 +317,7 @@ Analyse maintenant {ticker} selon ces critères."""
             'deepseek_analysis': {
                 'decision': 'HOLD',
                 'confidence': 0.5,
-                'target_price_6m': ticker_data.get('price_at_analysis', 0),
+                'target_price_15j': ticker_data.get('price_at_analysis', 0),
                 'catalyseurs': ['Analyse automatique indisponible'],
                 'thesis': 'Analyse technique de base seulement',
                 'risk_factors': ['API DeepSeek temporairement indisponible'],
@@ -252,23 +345,75 @@ Analyse maintenant {ticker} selon ces critères."""
         self.logger.info(f"🚀 Début analyse massive: {target_count} tickers cibles")
         
         dataset = []
-        successful_analyses = 0
+        high_quality_analyses = 0
+        total_attempts = 0
+        rejected_analyses = {
+            'market_cap': 0,
+            'confidence': 0,
+            'price': 0,
+            'volume': 0,
+            'other': 0
+        }
         
         for i, ticker in enumerate(tickers):
-            if successful_analyses >= target_count:
+            if high_quality_analyses >= target_count:
                 break
             
-            self.logger.info(f"📊 Analyse DS {successful_analyses+1}/{target_count}: {ticker}")
+            total_attempts += 1
+            self.logger.info(f"📊 Analyse DS {total_attempts}: {ticker} (Acceptées: {high_quality_analyses}/{target_count})")
             
             try:
                 # Récupérer les données yFinance
                 ticker_data = await self.get_ticker_data(ticker)
                 
                 if ticker_data:
-                    # Analyse DeepSeek
+                    # Pré-filtrage des données de base
+                    market_cap = ticker_data.get('market_cap', 0)
+                    price = ticker_data.get('price_at_analysis', 0)
+                    volume = ticker_data.get('volume_current', 0)
+                    
+                    # Vérification rapide AVANT l'analyse coûteuse
+                    if not (50_000_000 <= market_cap <= 300_000_000):
+                        rejected_analyses['market_cap'] += 1
+                        self.logger.warning(f"⚠️ {ticker} rejeté: Market cap ${market_cap:,} hors range 50M-300M")
+                        continue
+                    
+                    if price < 1.0:
+                        rejected_analyses['price'] += 1
+                        self.logger.warning(f"⚠️ {ticker} rejeté: Penny stock ${price:.2f}")
+                        continue
+                    
+                    if volume < 100_000:
+                        rejected_analyses['volume'] += 1
+                        self.logger.warning(f"⚠️ {ticker} rejeté: Volume faible {volume:,}")
+                        continue
+                    
+                    # Analyse DeepSeek (coûteuse, donc après pré-filtrage)
                     analysis = await self.analyze_microcap_with_deepseek(ticker_data)
-                    dataset.append(analysis)
-                    successful_analyses += 1
+                    
+                    # Vérification finale de la qualité
+                    quality_check = analysis.get('quality_check', {})
+                    if quality_check.get('meets_criteria', False):
+                        dataset.append(analysis)
+                        high_quality_analyses += 1
+                        confidence = analysis['deepseek_analysis']['confidence']
+                        min_base = quality_check.get('confidence_required_base', 0.65)
+                        margin = quality_check.get('confidence_margin', 0)
+                        
+                        if confidence >= min_base:
+                            self.logger.info(f"✅ {ticker} accepté: Confidence {confidence:.2f} >= {min_base:.2f} (parfait!)")
+                        else:
+                            self.logger.info(f"✅ {ticker} accepté: Confidence {confidence:.2f} (marge ±5%, base {min_base:.2f})")
+                    else:
+                        # Analyser pourquoi rejeté
+                        if not quality_check.get('confidence_valid', True):
+                            rejected_analyses['confidence'] += 1
+                            confidence = analysis['deepseek_analysis']['confidence']
+                            min_flexible = quality_check.get('confidence_required_flexible', 0.60)
+                            self.logger.warning(f"⚠️ {ticker} rejeté: Confidence {confidence:.2f} < {min_flexible:.2f} (min avec marge)")
+                        else:
+                            rejected_analyses['other'] += 1
+                            self.logger.warning(f"⚠️ {ticker} rejeté: Autres critères")
                 
                 # Pause pour respecter les rate limits
                 await asyncio.sleep(0.5)
@@ -282,9 +427,21 @@ Analyse maintenant {ticker} selon ces critères."""
                 self.logger.error(f"Erreur analyse {ticker}: {e}")
                 continue
         
-        # Statistiques finales
+        # Statistiques finales détaillées
         final_cost = f"${self.total_cost:.4f}"
-        self.logger.info(f"✅ Analyse massive terminée: {len(dataset)} analyses - Coût total: {final_cost}")
+        acceptance_rate = (high_quality_analyses / max(total_attempts, 1)) * 100
+        
+        self.logger.info(f"✅ Analyse massive terminée!")
+        self.logger.info(f"📊 RÉSULTATS: {high_quality_analyses} analyses HIGH-QUALITY acceptées")
+        self.logger.info(f"💰 Coût total: {final_cost}")
+        self.logger.info(f"📈 Taux d'acceptation: {acceptance_rate:.1f}% ({high_quality_analyses}/{total_attempts})")
+        
+        self.logger.info(f"❌ REJETS par critère:")
+        self.logger.info(f"  Market Cap (50M-300M): {rejected_analyses['market_cap']}")
+        self.logger.info(f"  Confidence (65-80%): {rejected_analyses['confidence']}")
+        self.logger.info(f"  Prix (>$1): {rejected_analyses['price']}")
+        self.logger.info(f"  Volume (>100k): {rejected_analyses['volume']}")
+        self.logger.info(f"  Autres: {rejected_analyses['other']}")
         
         return dataset
     
@@ -350,22 +507,7 @@ Analyse maintenant {ticker} selon ces critères."""
             'avg_cost_per_call': round(self.total_cost / max(self.api_calls_made, 1), 4)
         }
 
-# Test de l'analyseur DeepSeek
-async def test_deepseek_analyzer():
-    """Test de l'analyseur DeepSeek"""
-    analyzer = DeepSeekMicroCapAnalyzer()
-    
-    # Test avec quelques tickers
-    test_tickers = ["ABEO", "SAVA", "GEVO"]
-    
-    dataset = await analyzer.mass_analyze_microcaps(test_tickers, target_count=3)
-    
-    print(f"📊 Dataset créé: {len(dataset)} analyses")
-    print(f"💰 Statistiques: {analyzer.get_analysis_stats()}")
-    
-    if dataset:
-        print("🧪 Exemple d'analyse:")
-        print(json.dumps(dataset[0], indent=2, default=str))
-
 if __name__ == "__main__":
-    asyncio.run(test_deepseek_analyzer())
+    print("🚀 Démarrage de l'analyseur DeepSeek pour micro-caps...")
+    analyzer = DeepSeekMicroCapAnalyzer()
+    print("Module d'analyse DeepSeek prêt")

@@ -61,6 +61,50 @@ MicroCapExperiment/
 
 ---
 
+## 📚 Politique de Données, Scheduling et Archivage (mise à jour)
+
+Cette section formalise la politique d’écriture CSV/JSON et le scheduling multi-quotidien utilisés par le pipeline microcaps. Les détails exhaustifs sont décrits dans `enhanced_system/docs/WORKFLOW_DS.md`.
+
+### 📂 Paires CSV/JSON par étape
+
+- `enhanced_system/data/micro_caps_extended.csv` + `enhanced_system/data/evolution/caps_evolution_YYYY-MM-DD.json`
+- `enhanced_system/data/extended_to_potential.csv` + `enhanced_system/data/evolution/extended_to_potential_YYYY-MM-DD.json`
+- `enhanced_system/data/potential_to_pepite.csv` + `enhanced_system/data/evolution/potential_to_pepite_YYYY-MM-DD.json`
+- `enhanced_system/data/final_pepites.csv` + `enhanced_system/data/evolution/final_pepites_YYYY-MM-DD.json`
+
+Règles générales:
+
+- À chaque exécution d’une étape, le **CSV est réécrit** (vue courante) et le **JSON du jour est enrichi** (journal d’historique intra-journalier).
+- Chaque JSON contient `run_date`, `run_time` (Europe/Paris), `schedule_slot`, `parameters`, `version` et des `counters` spécifiques à l’étape.
+- Écriture atomique recommandée: écrire dans un fichier temporaire puis `rename()`.
+
+### 🕒 Scheduling recommandé (Europe/Paris)
+
+- Étapes 0–1 (univers + filtrage): 5×/jour — 09:00, 14:30, 18:00, 22:00, 01:30
+- Étapes 2–3 (DeepSeek + scoring final): 3×/jour — 14:30, 18:00, 22:00
+
+Offsets intra-slot pour éviter les accès concurrents disque:
+
+- `t+00:00` → Étape 0 (univers)
+- `t+00:02` → Étape 1 (filtrage)
+- `t+00:04` → Étape 2 (DeepSeek)
+- `t+00:06` → Étape 3 (Sharpe-like)
+
+Note: tenir compte des changements d’heure (DST) et ajuster notamment l’horaire de clôture US (22:00/23:00).
+
+---
+
+## 🧑‍🏫 Datasets HRM — Source de Vérité (mise à jour)
+
+- HRM doit apprendre à partir des **JSON d’archive** (`enhanced_system/data/evolution/*.json`) qui conservent l’historique, les paramètres et les horodatages, plutôt que depuis les CSV qui sont écrasés.
+- Clé logique pour la déduplication: `(ticker, pipeline_step, run_datetime, run_id)`.
+- Recommandation de pipeline:
+  - Script de construction: `hrm_ai/build_hrm_dataset.py` qui lit/normalise les JSON des 3 étapes, aplatit les structures, déduplique et produit un `parquet` partitionné par `pipeline_step` et `run_date` (ex: `hrm_ai/datasets/hrm_dataset.parquet`).
+  - Split temporel: `train` (ancien), `val` (récent), `test` (très récent) pour éviter la fuite temporelle.
+  - Cibles initiales: `DS_Decision` et/ou régression via `ExpectedReturn15d`; pondération possible par `DS_Confidence` (échelle glissante 65–80%, flex ±5%).
+
+---
+
 ## 🔧 Étape 1 : Vérification des Dépendances
 
 ### 1.1 Python Environment
@@ -155,6 +199,16 @@ core_orchestrator/
 - **Maintenance** : Mise à jour indépendante
 - **Tests** : Tests isolés par module
 - **Déploiement** : Modules déployables séparément
+
+---
+
+## 🔐 Configuration & Sécurité (mise à jour)
+
+- Les modules conservent chacun leur configuration, mais pour les secrets (ex: DeepSeek), on utilise **`config.py` comme façade** qui lit les **variables d’environnement**. Éviter toute clé en clair dans le dépôt.
+- Exemple pour DeepSeek (`deepseek_integration/config.py`):
+  - `DEEPSEEK_API_KEY = os.getenv("DEEPSEEK_API_KEY")` (lever une erreur si absent)
+  - `DEEPSEEK_BASE_URL`, `DEEPSEEK_MODEL`, timeouts/retries/slots/offsets avec valeurs par défaut et surcharge via env
+- Optionnel: `.env` local non committé pour le développement; CI/CD injecte les variables d’environnement au runtime.
 
 ---
 

@@ -237,21 +237,7 @@ class HRMFinancialTrainer:
         self.logger.info(f"📈 Statistiques dataset: {stats}")
         return stats
 
-# Test du trainer
-def test_trainer():
-    """Test du trainer HRM"""
-    trainer = HRMFinancialTrainer()
-    
-    # Analyser les statistiques
-    stats = trainer.analyze_dataset_statistics()
-    print("📊 Statistiques du dataset:")
-    print(json.dumps(stats, indent=2))
-    
-    # Préparer le format HRM
-    hrm_dataset = trainer.prepare_hrm_format()
-    if hrm_dataset:
-        print(f"✅ Dataset HRM prêt: {hrm_dataset['num_examples']} exemples")
-        print(f"📊 Input dim: {hrm_dataset['input_dim']}, Output classes: {hrm_dataset['output_classes']}")
-
 if __name__ == "__main__":
-    test_trainer()
+    print("🚀 Démarrage du trainer HRM financier...")
+    trainer = HRMFinancialTrainer()
+    print("Module d'entraînement HRM financier prêt")

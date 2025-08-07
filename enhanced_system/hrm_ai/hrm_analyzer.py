@@ -221,12 +221,7 @@ class HRMAnalyzer:
             self.logger.error(f"Erreur chargement portefeuille: {e}")
             return []
 
-# Test du module HRM
-async def test_hrm_analyzer():
-    """Test du module HRM"""
-    analyzer = HRMAnalyzer()
-    results = await analyzer.analyze_portfolio()
-    print("HRM Analysis Results:", results)
-
 if __name__ == "__main__":
-    asyncio.run(test_hrm_analyzer()) 
+    print("🚀 Démarrage de l'analyseur HRM...")
+    analyzer = HRMAnalyzer()
+    asyncio.run(analyzer.analyze_portfolio()) 

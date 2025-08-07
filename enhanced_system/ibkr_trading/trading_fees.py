@@ -170,30 +170,7 @@ class TradingFeesManager:
             'last_updated': datetime.now().isoformat()
         }
 
-# Test du gestionnaire de frais
-def test_trading_fees():
-    """Test du gestionnaire de frais"""
-    fees_manager = TradingFeesManager()
-    
-    # Test 1: Petit ordre (minimum 1$)
-    print("=== Test 1: Petit ordre ===")
-    result1 = fees_manager.calculate_commission(10, 0.20)  # 10 actions à $0.20
-    print(f"10 actions à $0.20: {result1}")
-    
-    # Test 2: Ordre moyen
-    print("\n=== Test 2: Ordre moyen ===")
-    result2 = fees_manager.calculate_commission(100, 5.00)  # 100 actions à $5.00
-    print(f"100 actions à $5.00: {result2}")
-    
-    # Test 3: Aller-retour complet
-    print("\n=== Test 3: Aller-retour ===")
-    result3 = fees_manager.calculate_round_trip_fees(50, 3.00, 3.50)  # 50 actions achetées à $3, vendues à $3.50
-    print(f"Aller-retour 50 actions $3→$3.50: {result3}")
-    
-    # Test 4: Résumé des frais
-    print("\n=== Test 4: Résumé des frais ===")
-    summary = fees_manager.get_fee_summary()
-    print(f"Structure des frais: {summary}")
-
 if __name__ == "__main__":
-    test_trading_fees() 
+    print("🚀 Démarrage du gestionnaire de frais IBKR...")
+    fees_manager = TradingFeesManager()
+    print("Module de calcul des frais prêt") 

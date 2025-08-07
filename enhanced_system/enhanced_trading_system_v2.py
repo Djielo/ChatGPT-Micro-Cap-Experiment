@@ -314,29 +314,7 @@ class EnhancedTradingSystemV2:
         
         return results
 
-# Test du système complet
-async def test_enhanced_system_v2():
-    """Test du système complet"""
-    system = EnhancedTradingSystemV2()
-    
-    # Lancer le pipeline avec des paramètres de test
-    results = await system.run_full_pipeline(
-        dataset_size=10,  # Petit test
-        daily_tickers=["ABEO", "SAVA", "GEVO"]
-    )
-    
-    print("\n" + "=" * 60)
-    print("📊 RÉSULTATS DU PIPELINE COMPLET")
-    print("=" * 60)
-    
-    print(f"PHASE 1 (Dataset): {'✅ Succès' if results['phase_1_success'] else '❌ Échec'}")
-    print(f"PHASE 2 (Training): {'✅ Succès' if results['phase_2_success'] else '❌ Échec'}")
-    
-    if results['phase_3_results']:
-        phase_3 = results['phase_3_results']
-        print(f"PHASE 3 (Transition): ✅ Jour {phase_3.get('day', 'N/A')}")
-        print(f"  DS Analyses: {len(phase_3.get('deepseek_results', []))}")
-        print(f"  HRM Analyses: {len(phase_3.get('hrm_results', []))}")
-
 if __name__ == "__main__":
-    asyncio.run(test_enhanced_system_v2())
+    print("🚀 Démarrage du système de trading amélioré V2...")
+    system = EnhancedTradingSystemV2()
+    asyncio.run(system.run_full_pipeline())

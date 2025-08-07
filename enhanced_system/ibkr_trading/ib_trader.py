@@ -229,19 +229,8 @@ class IBTrader(EWrapper, EClient):
             'connection_status': 'Connected' if self.connected else 'Disconnected'
         }
 
-# Test du module IBKR
-async def test_ib_trader():
-    """Test du module IBKR"""
-    trader = IBTrader()
-    
-    # Simuler des décisions de trading
-    test_decisions = {
-        'ABEO': {'action': 'BUY', 'confidence': 0.75, 'reason': 'Strong signals'},
-        'CADL': {'action': 'HOLD', 'confidence': 0.5, 'reason': 'Mixed signals'}
-    }
-    
-    results = await trader.execute_trades(test_decisions)
-    print("IBKR Trading Results:", results)
-
 if __name__ == "__main__":
-    asyncio.run(test_ib_trader()) 
+    print("🚀 Démarrage du trader IBKR...")
+    trader = IBTrader()
+    # Exemple d'utilisation
+    print("Module IBKR prêt pour l'exécution de trades") 

@@ -308,30 +308,7 @@ class TransitionManager:
             'is_complete': self.hrm_percentage >= 100
         }
 
-# Test du gestionnaire de transition
-def test_transition_manager():
-    """Test du gestionnaire de transition"""
-    manager = TransitionManager()
-    
-    # Test d'allocation
-    test_tickers = [f"TICK{i:03d}" for i in range(20)]
-    allocation = manager.allocate_tickers_for_analysis(test_tickers)
-    
-    print(f"📊 Test allocation:")
-    print(f"DS: {len(allocation['deepseek'])} tickers")
-    print(f"HRM: {len(allocation['hrm'])} tickers")
-    
-    # Simuler des résultats
-    ds_results = [{'deepseek_analysis': {'confidence': 0.7, 'decision': 'BUY'}}] * len(allocation['deepseek'])
-    hrm_results = [{'analysis': {'confidence': 0.8, 'decision': 'HOLD'}}] * len(allocation['hrm'])
-    
-    # Évaluer la performance
-    performance = manager.evaluate_daily_performance(ds_results, hrm_results)
-    print(f"📈 Performance: {performance}")
-    
-    # Ajuster l'allocation
-    adjustment = manager.adjust_allocation_based_on_performance()
-    print(f"⚖️ Ajustement: {adjustment}")
-
 if __name__ == "__main__":
-    test_transition_manager()
+    print("🚀 Démarrage du gestionnaire de transition...")
+    manager = TransitionManager()
+    print("Module de gestion de transition prêt")

@@ -283,18 +283,7 @@ class MicroCapDataCollector:
         self.logger.info(f"✅ Dataset HRM sauvegardé: {output_file} ({len(dataset)} exemples)")
         return dataset
 
-# Test du collecteur
-def test_collector():
-    """Test du collecteur de données"""
-    collector = MicroCapDataCollector()
-    
-    # Test avec quelques exemples
-    dataset = collector.collect_hrm_dataset(10, "test_dataset.json")
-    print(f"📊 Dataset collecté: {len(dataset)} exemples")
-    
-    if dataset:
-        print("🧪 Exemple d'analyse:")
-        print(json.dumps(dataset[0], indent=2))
-
 if __name__ == "__main__":
-    test_collector()
+    print("🚀 Démarrage du collecteur de données micro-caps...")
+    collector = MicroCapDataCollector()
+    print("Module de collecte de données prêt")

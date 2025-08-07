@@ -215,12 +215,7 @@ class DeepSeekAnalyzer:
             self.logger.error(f"Erreur chargement portefeuille: {e}")
             return []
 
-# Test du module DeepSeek
-async def test_deepseek_analyzer():
-    """Test du module DeepSeek"""
-    analyzer = DeepSeekAnalyzer()
-    results = await analyzer.get_latest_market_data()
-    print("DeepSeek Analysis Results:", results)
-
 if __name__ == "__main__":
-    asyncio.run(test_deepseek_analyzer()) 
+    print("🚀 Démarrage de l'analyseur DeepSeek...")
+    analyzer = DeepSeekAnalyzer()
+    asyncio.run(analyzer.get_latest_market_data()) 

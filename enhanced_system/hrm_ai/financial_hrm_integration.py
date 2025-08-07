@@ -197,33 +197,7 @@ class FinancialHRMIntegrator:
         # Cette fonction convertira la sortie du modèle en décision de trading
         pass
     
-    def test_hrm_integration(self):
-        """
-        Test de l'intégration HRM
-        """
-        self.logger.info("🧪 Test de l'intégration HRM...")
-        
-        # Test avec des données simulées
-        test_data = {
-            'ticker': 'ABEO',
-            'price': 5.77,
-            'volume': 1000000,
-            'market_cap': 250000000
-        }
-        
-        result = self.analyze_microcap_hierarchical(test_data)
-        self.logger.info(f"✅ Test HRM réussi: {result}")
-        
-        return result
-
-# Test de l'intégrateur
-def test_financial_hrm():
-    """Test de l'intégrateur HRM financier"""
-    integrator = FinancialHRMIntegrator()
-    
-    # Test sans modèle (simulation)
-    result = integrator.test_hrm_integration()
-    print("🧪 Test HRM Financier:", result)
-
 if __name__ == "__main__":
-    test_financial_hrm() 
+    print("🚀 Démarrage de l'intégrateur HRM financier...")
+    integrator = FinancialHRMIntegrator()
+    print("Module d'intégration HRM financier prêt") 

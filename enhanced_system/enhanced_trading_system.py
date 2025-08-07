@@ -128,20 +128,7 @@ class EnhancedTradingSystem:
                 self.logger.error(f"❌ Erreur dans la surveillance: {e}")
                 await asyncio.sleep(3600)  # Attendre 1h en cas d'erreur
 
-# Test du système complet
-async def test_enhanced_system():
-    """Test du système de trading amélioré"""
-    system = EnhancedTradingSystem()
-    
-    print("\n" + "="*60)
-    print("🧪 TEST DU SYSTÈME DE TRADING AMÉLIORÉ")
-    print("="*60)
-    
-    await system.run_daily_routine()
-    
-    print("\n" + "="*60)
-    print("✅ TEST TERMINÉ AVEC SUCCÈS")
-    print("="*60)
-
 if __name__ == "__main__":
-    asyncio.run(test_enhanced_system()) 
+    print("🚀 Démarrage du système de trading amélioré...")
+    system = EnhancedTradingSystem()
+    asyncio.run(system.run_daily_routine()) 

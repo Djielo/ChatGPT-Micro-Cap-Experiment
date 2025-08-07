@@ -249,11 +249,7 @@ class ModuleCommunication:
         self.logger.debug(f"Messages reçus de {module_name}: {len(messages)}")
         return messages
 
-# Test de l'orchestrateur
-async def test_orchestrator():
-    """Test de l'orchestrateur"""
-    orchestrator = TradingOrchestrator()
-    await orchestrator.orchestrate_daily_analysis()
-
 if __name__ == "__main__":
-    asyncio.run(test_orchestrator()) 
+    print("🚀 Démarrage de l'orchestrateur de trading...")
+    orchestrator = TradingOrchestrator()
+    asyncio.run(orchestrator.orchestrate_daily_analysis()) 
