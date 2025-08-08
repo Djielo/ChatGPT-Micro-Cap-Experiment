@@ -92,8 +92,8 @@ class EnhancedTradingSystem:
         self.logger.info("💾 Sauvegarde des données quotidiennes...")
         
         # Créer le dossier de sauvegarde s'il n'existe pas
-        backup_dir = Path('enhanced_system_data')
-        backup_dir.mkdir(exist_ok=True)
+        backup_dir = Path('enhanced_system/data/backups')
+        backup_dir.mkdir(exist_ok=True, parents=True)
         
         # Simuler la sauvegarde
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')

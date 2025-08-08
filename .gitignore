@@ -181,9 +181,7 @@ core_orchestrator/credentials.json
 **/volume_data/
 
 # Cache DeepSeek et outputs générés
-enhanced_system/data/deepseek_cache/**
-enhanced_system/data/*.csv
-enhanced_system/data/evolution/*.json
+enhanced_system/data/
 
 # ========================================
 # LOGS ET MONITORING
@@ -212,7 +210,7 @@ metrics/
 # ========================================
 
 # Sauvegardes automatiques
-enhanced_system_data/
+enhanced_system/data/backups/
 backup/
 backups/
 daily_backup_*.json
