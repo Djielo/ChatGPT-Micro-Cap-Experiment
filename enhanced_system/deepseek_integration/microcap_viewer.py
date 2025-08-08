@@ -9,32 +9,31 @@ st.title("📊 Microcaps Viewer – Analyse et Scoring interactif")
 # === 1. Contrôles compacts en haut ===
 col1, col2, col3, col4 = st.columns([0.2, 0.4, 0.2, 0.2])
 with col1:
-    with stylable_container(
-        key="controls_card",
-        css_styles="""
-            {
-                border: 1px solid #60a5fa;
-                border-radius: 14px;
-                padding: 14px 16px;
-                background: rgba(17,24,39,0.75);
-                box-shadow: 0 6px 16px rgba(0,0,0,0.35);
-                margin-bottom: 18px;
-                min-height: 375px;
-            }
-        """
-    ):
-        st.markdown("### 🎛️ Contrôles")
-        dataset_choice = st.radio(
-            "Dataset",
-            [
-                "Univers (micro_caps_extended)",
-                "Potentiels (extended_to_potential)",
-                "Analyses DS (potential_to_pepite)",
-                "Final Pepites (pepite_to_sharpratio)",
-            ],
-            index=0,
-            horizontal=False,
-        )
+    with st.expander("🎛️ Contrôles", expanded=False):
+        with stylable_container(
+            key="controls_card",
+            css_styles="""
+                {
+                    border: 1px solid #60a5fa;
+                    border-radius: 14px;
+                    padding: 14px 16px;
+                    background: rgba(17,24,39,0.75);
+                    box-shadow: 0 6px 16px rgba(0,0,0,0.35);                    
+                    min-height: 375px;
+                }
+            """
+        ):
+            dataset_choice = st.radio(
+                "Dataset",
+                [
+                    "Univers (micro_caps_extended)",
+                    "Potentiels (extended_to_potential)",
+                    "Analyses DS (potential_to_pepite)",
+                    "Final Pepites (pepite_to_sharpratio)",
+                ],
+                index=0,
+                horizontal=False,
+            )
 
 # === 2. Chargement des données ===
 @st.cache_data
@@ -125,126 +124,126 @@ else:
     df = load_final_pepites()
 
 with col2:
-    with stylable_container(
-        key="filters_card", 
-        css_styles="{ border:1px solid #f472b6; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height:375px; }"
-    ):
-        st.markdown("### 🔍 Filtres")
-        col2a, col2b = st.columns([1, 2])
-        with col2a:
-            if "Market" in df.columns:
-                st.markdown("**Marchés :**")
-                market_options = sorted(df["Market"].dropna().unique())
-                markets = []
-                for market in market_options:
-                    if st.checkbox(market, key=f"market_{market}"):
-                        markets.append(market)
-            else:
-                markets = []
-        with col2b:
-            if "Sector" in df.columns:
-                st.markdown("**Secteurs :**")
-                sector_options = sorted(df["Sector"].dropna().unique())
-                sectors = []
-                
-                # Organiser les secteurs en 2 colonnes
-                col2b1, col2b2 = st.columns(2)
-                mid_point = len(sector_options) // 2
-                
-                with col2b1:
-                    for sector in sector_options[:mid_point]:
-                        if st.checkbox(sector, key=f"sector_{sector}"):
-                            sectors.append(sector)
-                
-                with col2b2:
-                    for sector in sector_options[mid_point:]:
-                        if st.checkbox(sector, key=f"sector_{sector}"):
-                            sectors.append(sector)
-            else:
-                sectors = []
+    with st.expander("🔍 Filtres", expanded=False):
+        with stylable_container(
+            key="filters_card", 
+            css_styles="{ border:1px solid #f472b6; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height: 375px; }"
+        ):
+            col2a, col2b = st.columns([1, 2])
+            with col2a:
+                if "Market" in df.columns:
+                    st.markdown("**Marchés :**")
+                    market_options = sorted(df["Market"].dropna().unique())
+                    markets = []
+                    for market in market_options:
+                        if st.checkbox(market, key=f"market_{market}"):
+                            markets.append(market)
+                else:
+                    markets = []
+            with col2b:
+                if "Sector" in df.columns:
+                    st.markdown("**Secteurs :**")
+                    sector_options = sorted(df["Sector"].dropna().unique())
+                    sectors = []
+                    
+                    # Organiser les secteurs en 2 colonnes
+                    col2b1, col2b2 = st.columns(2)
+                    mid_point = len(sector_options) // 2
+                    
+                    with col2b1:
+                        for sector in sector_options[:mid_point]:
+                            if st.checkbox(sector, key=f"sector_{sector}"):
+                                sectors.append(sector)
+                    
+                    with col2b2:
+                        for sector in sector_options[mid_point:]:
+                            if st.checkbox(sector, key=f"sector_{sector}"):
+                                sectors.append(sector)
+                else:
+                    sectors = []
 
 with col3:
-    with stylable_container(
-        key="numeric_card", 
-        css_styles="{ border:1px solid #a78bfa; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height:375px; }"
-    ):
-        st.markdown("### 📊 Filtres numériques")
+    with st.expander("📊 Filtres numériques", expanded=False):
+        with stylable_container(
+            key="numeric_card", 
+            css_styles="{ border:1px solid #a78bfa; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height: 375px; }"
+        ):
 
-        # Market Cap
-        use_cap_filter = st.checkbox("Market Cap", value=True)
-        if use_cap_filter:
-            cap_col1, cap_col2 = st.columns(2)
-            with cap_col1:
-                cap_min = st.number_input("Min (M$)", min_value=0, max_value=100_000, value=74, label_visibility="collapsed")
-            with cap_col2:
-                cap_max = st.number_input("Max (M$)", min_value=0, max_value=100_000, value=75, label_visibility="collapsed")
-            cap_range = (cap_min * 1_000_000, cap_max * 1_000_000)
-        else:
-            cap_range = (0, float('inf'))
+            # Market Cap
+            use_cap_filter = st.checkbox("Market Cap", value=True)
+            if use_cap_filter:
+                cap_col1, cap_col2 = st.columns(2)
+                with cap_col1:
+                    cap_min = st.number_input("Min (M$)", min_value=0, max_value=100_000, value=74, label_visibility="collapsed")
+                with cap_col2:
+                    cap_max = st.number_input("Max (M$)", min_value=0, max_value=100_000, value=75, label_visibility="collapsed")
+                cap_range = (cap_min * 1_000_000, cap_max * 1_000_000)
+            else:
+                cap_range = (0, float('inf'))
 
-        # Prix
-        use_price_filter = st.checkbox("Prix", value=True)
-        if use_price_filter:
-            price_col1, price_col2 = st.columns(2)
-            with price_col1:
-                price_min = st.number_input("Min $", min_value=0.0, max_value=1000.0, value=1.0, step=0.1, label_visibility="collapsed")
-            with price_col2:
-                price_max = st.number_input("Max $", min_value=0.0, max_value=1000.0, value=30.0, step=0.1, label_visibility="collapsed")
-            price_range = (price_min, price_max)
-        else:
-            price_range = (0.0, float('inf'))
+            # Prix
+            use_price_filter = st.checkbox("Prix", value=True)
+            if use_price_filter:
+                price_col1, price_col2 = st.columns(2)
+                with price_col1:
+                    price_min = st.number_input("Min $", min_value=0.0, max_value=1000.0, value=1.0, step=0.1, label_visibility="collapsed")
+                with price_col2:
+                    price_max = st.number_input("Max $", min_value=0.0, max_value=1000.0, value=30.0, step=0.1, label_visibility="collapsed")
+                price_range = (price_min, price_max)
+            else:
+                price_range = (0.0, float('inf'))
 
-        # Volume
-        use_volume_filter = st.checkbox("Volume", value=True)
-        if use_volume_filter:
-            volume_col1, volume_col2 = st.columns(2)
-            with volume_col1:
-                volume_min = st.number_input("Min Vol", min_value=0, max_value=100_000_000, value=1000, step=1000, label_visibility="collapsed")
-            with volume_col2:
-                volume_max = st.number_input("Max Vol", min_value=0, max_value=100_000_000, value=1000000, step=1000, label_visibility="collapsed")
-            volume_range = (volume_min, volume_max)
-        else:
-            volume_range = (0, float('inf'))
+            # Volume
+            use_volume_filter = st.checkbox("Volume", value=True)
+            if use_volume_filter:
+                volume_col1, volume_col2 = st.columns(2)
+                with volume_col1:
+                    volume_min = st.number_input("Min Vol", min_value=0, max_value=100_000_000, value=1000, step=1000, label_visibility="collapsed")
+                with volume_col2:
+                    volume_max = st.number_input("Max Vol", min_value=0, max_value=100_000_000, value=1000000, step=1000, label_visibility="collapsed")
+                volume_range = (volume_min, volume_max)
+            else:
+                volume_range = (0, float('inf'))
 
-        # Short Ratio
-        short_ratio_range = (0.0, 1.0)
-        if dataset_choice.startswith("Univers") and "shortRatio" in df.columns:
-            short_ratio_max = df["shortRatio"].max(skipna=True)
-            if pd.notna(short_ratio_max):
-                short_ratio_range = st.slider(
-                    "Short Ratio", 0.0, float(short_ratio_max), (0.0, float(short_ratio_max))
-                )
+            # Short Ratio
+            short_ratio_range = (0.0, 1.0)
+            if dataset_choice.startswith("Univers") and "shortRatio" in df.columns:
+                short_ratio_max = df["shortRatio"].max(skipna=True)
+                if pd.notna(short_ratio_max):
+                    short_ratio_range = st.slider(
+                        "Short Ratio", 0.0, float(short_ratio_max), (0.0, float(short_ratio_max))
+                    )
 
 with col4:
-    with stylable_container(
-        key="weights_card", 
-        css_styles="{ border:1px solid #34d399; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height:375px; }"
-    ):
-        st.markdown("### 📈 Poids du Scoring")
-        if dataset_choice.startswith("Univers"):
-            w_price = st.slider("📉 Prix", 0.0, 10.0, 2.0, help="Poids Prix (1/Prix)")
-            w_volume = st.slider("🔊 Volume", 0.0, 10.0, 1.0, help="Poids Volume")
-            w_cap = st.slider("🏢 Market Cap", 0.0, 5.0, 0.5, help="Poids Market Cap (inverse)")
-            w_short = st.slider("⚠️ Short Ratio", 0.0, 10.0, 3.0, help="Poids Short Ratio") if "shortRatio" in df.columns else 0
-        else:
-            use_composite = st.checkbox("Score composite", value=True, help="Combine ScorePotential avec facteurs simples")
-            w_sp = st.slider("⭐ ScorePotential", 0.0, 3.0, 1.0, help="Poids ScorePotential")
-            w_price = st.slider("📉 Prix", 0.0, 5.0, 0.5, help="Poids Prix (1/Prix)")
-            w_volume = st.slider("🔊 Volume", 0.0, 5.0, 0.5, help="Poids Volume")
-            w_cap = st.slider("🏢 Market Cap", 0.0, 3.0, 0.2, help="Poids Market Cap (inverse)")
-        
-        # Export CSV
-        if st.button("📤 Export CSV"):
+    with st.expander("📈 Poids du Scoring", expanded=False):
+        with stylable_container(
+            key="weights_card", 
+            css_styles="{ border:1px solid #34d399; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height: 375px; }"
+        ):
             if dataset_choice.startswith("Univers"):
-                out = "filtered_microcaps.csv"
-            elif dataset_choice.startswith("Potentiels"):
-                out = "filtered_potentials.csv"
-            elif dataset_choice.startswith("Analyses DS"):
-                out = "filtered_ds_analysis.csv"
+                w_price = st.slider("📉 Prix", 0.0, 10.0, 2.0, help="Poids Prix (1/Prix)")
+                w_volume = st.slider("🔊 Volume", 0.0, 10.0, 1.0, help="Poids Volume")
+                w_cap = st.slider("🏢 Market Cap", 0.0, 5.0, 0.5, help="Poids Market Cap (inverse)")
+                w_short = st.slider("⚠️ Short Ratio", 0.0, 10.0, 3.0, help="Poids Short Ratio") if "shortRatio" in df.columns else 0
             else:
-                out = "filtered_final_pepites.csv"
-            filtered.to_csv(out, index=False)
-            st.success(f"Export : {out}")
+                use_composite = st.checkbox("Score composite", value=True, help="Combine ScorePotential avec facteurs simples")
+                w_sp = st.slider("⭐ ScorePotential", 0.0, 3.0, 1.0, help="Poids ScorePotential")
+                w_price = st.slider("📉 Prix", 0.0, 5.0, 0.5, help="Poids Prix (1/Prix)")
+                w_volume = st.slider("🔊 Volume", 0.0, 5.0, 0.5, help="Poids Volume")
+                w_cap = st.slider("🏢 Market Cap", 0.0, 3.0, 0.2, help="Poids Market Cap (inverse)")
+            
+            # Export CSV
+            if st.button("📤 Export CSV"):
+                if dataset_choice.startswith("Univers"):
+                    out = "filtered_microcaps.csv"
+                elif dataset_choice.startswith("Potentiels"):
+                    out = "filtered_potentials.csv"
+                elif dataset_choice.startswith("Analyses DS"):
+                    out = "filtered_ds_analysis.csv"
+                else:
+                    out = "filtered_final_pepites.csv"
+                filtered.to_csv(out, index=False)
+                st.success(f"Export : {out}")
 
 # === 3. Application des filtres et calculs ===
 filtered = df.copy()
