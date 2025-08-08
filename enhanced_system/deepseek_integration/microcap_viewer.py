@@ -4,18 +4,42 @@ from streamlit_extras.stylable_container import stylable_container
 
 st.set_page_config(page_title="Microcap Viewer", layout="wide")
 
-st.title("📊 Microcaps Viewer – Analyse et Scoring interactif")
+# --- HEADER: titre à gauche, 2 boutons à droite, bien alignés sur la même ligne ---
+title_col, buttons_col = st.columns([0.6, 0.4], vertical_alignment="center")
 
-# Bouton pour ouvrir/fermer tous les menus
-col_btn1, col_btn2, col_btn3 = st.columns([0.3, 0.4, 0.3])
-with col_btn2:
-    if st.button("🔄 Ouvrir/Fermer tous les menus", type="secondary"):
-        # Inverse l'état actuel
-        current_state = st.session_state.get('all_expanded', False)
-        st.session_state['all_expanded'] = not current_state
+with title_col:
+    st.markdown("## 📊 Microcaps Viewer – Analyse et Scoring interactif")
+
+with buttons_col:
+    # 1ère sous-colonne = espace (pousse les boutons à droite)
+    # 2 colonnes pour les boutons, largeur identique
+    spacer, b1, b2 = st.columns([1.0, 2, 1], vertical_alignment="center")
+
+    with b1:
+        btn1 = st.button("🔄 Ouvrir/Fermer tous les menus", type="secondary", use_container_width=True)
+    with b2:
+        btn2 = st.button("📤 Export CSV", type="secondary", use_container_width=True)
+
+# Actions des boutons
+if btn1:
+    current_state = st.session_state.get('all_expanded', False)
+    st.session_state['all_expanded'] = not current_state
+
+if btn2:
+    if dataset_choice.startswith("Univers"):
+        out = "filtered_microcaps.csv"
+    elif dataset_choice.startswith("Potentiels"):
+        out = "filtered_potentials.csv"
+    elif dataset_choice.startswith("Analyses DS"):
+        out = "filtered_ds_analysis.csv"
+    else:
+        out = "filtered_final_pepites.csv"
+    filtered.to_csv(out, index=False)
+    st.success(f"Export : {out}")
+
 
 # === 1. Contrôles compacts en haut ===
-col1, col2, col3, col4 = st.columns([0.2, 0.4, 0.2, 0.2])
+col1, col2, col3, col4 = st.columns([0.21, 0.40, 0.20, 0.19])
 with col1:
     with st.expander("🎛️ Contrôles", expanded=st.session_state.get('all_expanded', False)):
         with stylable_container(
@@ -240,18 +264,7 @@ with col4:
                 w_volume = st.slider("🔊 Volume", 0.0, 5.0, 0.5, help="Poids Volume")
                 w_cap = st.slider("🏢 Market Cap", 0.0, 3.0, 0.2, help="Poids Market Cap (inverse)")
             
-            # Export CSV
-            if st.button("📤 Export CSV"):
-                if dataset_choice.startswith("Univers"):
-                    out = "filtered_microcaps.csv"
-                elif dataset_choice.startswith("Potentiels"):
-                    out = "filtered_potentials.csv"
-                elif dataset_choice.startswith("Analyses DS"):
-                    out = "filtered_ds_analysis.csv"
-                else:
-                    out = "filtered_final_pepites.csv"
-                filtered.to_csv(out, index=False)
-                st.success(f"Export : {out}")
+
 
 # === 3. Application des filtres et calculs ===
 filtered = df.copy()
