@@ -87,7 +87,7 @@ app.layout = html.Div([
     html.Div([
         # Colonne 1: Contrôles
         html.Div([
-            html.H3("🎛️ Contrôles", style={'color': 'white', 'marginBottom': '15px'}),
+            html.H3("🎛️ Contrôles", style={'color': 'white', 'marginBottom': '15px', 'marginTop': '0px'}),
             dcc.RadioItems(
                 id='dataset-choice',
                 options=[
@@ -104,7 +104,7 @@ app.layout = html.Div([
         
         # Colonne 2: Filtres
         html.Div([
-            html.H3("🔍 Filtres", style={'color': 'white', 'marginBottom': '15px'}),
+            html.H3("🔍 Filtres", style={'color': 'white', 'marginBottom': '15px', 'marginTop': '0px'}),
             html.Div([
                 html.Div([
                     html.Label("Marchés:", style={'color': 'white', 'fontWeight': 'bold'}),
@@ -144,7 +144,7 @@ app.layout = html.Div([
         
         # Colonne 3: Filtres numériques
         html.Div([
-            html.H3("📊 Filtres numériques", style={'color': 'white', 'marginBottom': '15px'}),
+            html.H3("📊 Filtres numériques", style={'color': 'white', 'marginBottom': '15px', 'marginTop': '0px'}),
             html.Div([
                 html.Div([
                     html.Label("Market Cap (M$):", style={'color': 'white', 'marginBottom': '8px'}),
@@ -175,7 +175,7 @@ app.layout = html.Div([
         
         # Colonne 4: Poids du Scoring
         html.Div([
-            html.H3("📈 Poids du Scoring", style={'color': 'white', 'marginBottom': '15px'}),
+            html.H3("📈 Poids du Scoring", style={'color': 'white', 'marginBottom': '15px', 'marginTop': '0px'}),
             html.Div(id='scoring-weights')
         ], style={'width': '20%', 'padding': '15px', 'backgroundColor': 'rgba(17,24,39,0.75)', 'border': '1px solid #34d399', 'borderRadius': '14px'})
     ], style={'display': 'flex', 'marginBottom': '20px'}),
