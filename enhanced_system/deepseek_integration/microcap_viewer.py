@@ -9,6 +9,7 @@ dataset_choice = st.sidebar.radio(
     [
         "Univers (micro_caps_extended)",
         "Potentiels (extended_to_potential)",
+        "Analyses DS (potential_to_pepite)",
     ],
     index=0,
 )
@@ -60,7 +61,28 @@ def load_potentials():
     return df
 
 
-df = load_universe() if dataset_choice.startswith("Univers") else load_potentials()
+@st.cache_data
+def load_ds_analysis():
+    df = pd.read_csv(
+        "enhanced_system/data/potential_to_pepite.csv",
+        encoding='utf-8',
+    )
+    # Harmonisations légères
+    if "MarketCap" in df.columns and "Market Cap" not in df.columns:
+        df = df.rename(columns={"MarketCap": "Market Cap"})
+    if "Exchange" in df.columns and "Market" not in df.columns:
+        df = df.rename(columns={"Exchange": "Market"})
+    if "CompanyName" in df.columns and "Name" not in df.columns:
+        df = df.rename(columns={"CompanyName": "Name"})
+    return df
+
+
+if dataset_choice.startswith("Univers"):
+    df = load_universe()
+elif dataset_choice.startswith("Potentiels"):
+    df = load_potentials()
+else:
+    df = load_ds_analysis()
 
 
 st.title("📊 Microcaps Viewer – Analyse et Scoring interactif")
@@ -216,7 +238,7 @@ if dataset_choice.startswith("Univers"):
         filtered["Score"] += w_short * filtered["shortRatio"].fillna(0)
     filtered["Score"] = filtered["Score"].fillna(0)
     filtered = filtered.sort_values("Score", ascending=False).reset_index(drop=True)
-else:
+elif dataset_choice.startswith("Potentiels"):
     # Tri par ScorePotential si disponible
     if "ScorePotential" in filtered.columns:
         if "Market Cap" in filtered.columns and "Price" in filtered.columns and "Volume" in filtered.columns and use_composite:
@@ -229,6 +251,17 @@ else:
             filtered = filtered.sort_values("ScoreComposite", ascending=False).reset_index(drop=True)
         else:
             filtered = filtered.sort_values("ScorePotential", ascending=False).reset_index(drop=True)
+else:
+    # Vue Analyses DS: pas de recalcul, tri par confiance puis target/price
+    if "DS_Confidence" in filtered.columns:
+        # Si Price disponible, trier aussi par (DS_TargetPrice15d - Price)/Price
+        if set(["DS_TargetPrice15d", "Price"]).issubset(filtered.columns):
+            ret = (filtered["DS_TargetPrice15d"] - filtered["Price"]) / filtered["Price"].replace(0, 1)
+            filtered = filtered.assign(_ret15=ret.fillna(0))
+            filtered = filtered.sort_values(["DS_Confidence", "_ret15"], ascending=[False, False]).drop(columns=["_ret15"])\
+                               .reset_index(drop=True)
+        else:
+            filtered = filtered.sort_values("DS_Confidence", ascending=False).reset_index(drop=True)
 
 # === 6. Affichage tableau et détails ===
 st.markdown(f"### 🎯 {len(filtered)} lignes affichées après filtrage")
@@ -280,13 +313,27 @@ if dataset_choice.startswith("Univers"):
             st.sidebar.markdown(f"**Short Ratio :** {sel['shortRatio']}")
         st.sidebar.markdown(f"[📎 Yahoo Finance](https://finance.yahoo.com/quote/{sel['Ticker']})")
 else:
-    # Vue Potentiels
-    cols = [c for c in ["Ticker","Name","Market","Sector","Market Cap","Price","Volume","ScorePotential","ScoreComposite","ReasonsTags","Comments","Status","Date"] if c in filtered.columns]
-    st.dataframe(filtered[cols], use_container_width=True)
+    if dataset_choice.startswith("Potentiels"):
+        # Vue Potentiels
+        cols = [c for c in ["Ticker","Name","Market","Sector","Market Cap","Price","Volume","ScorePotential","ScoreComposite","ReasonsTags","Comments","Status","Date"] if c in filtered.columns]
+        st.dataframe(filtered[cols], use_container_width=True)
+    else:
+        # Vue Analyses DS
+        cols = [c for c in [
+            "Ticker","Name","Market","Sector","Market Cap","Price","Volume",
+            "ScorePotential","DS_Decision","DS_Confidence","DS_TargetPrice15d",
+            "MeetsCriteria","DS_Conviction","DS_Catalyseurs","DS_Risks","DS_Timestamp"
+        ] if c in filtered.columns]
+        st.dataframe(filtered[cols], use_container_width=True)
 
 # === 7. Export CSV filtré
 st.sidebar.markdown("---")
 if st.sidebar.button("📤 Exporter en CSV"):
-    out = "filtered_microcaps.csv" if dataset_choice.startswith("Univers") else "filtered_potentials.csv"
+    if dataset_choice.startswith("Univers"):
+        out = "filtered_microcaps.csv"
+    elif dataset_choice.startswith("Potentiels"):
+        out = "filtered_potentials.csv"
+    else:
+        out = "filtered_ds_analysis.csv"
     filtered.to_csv(out, index=False)
     st.sidebar.success(f"Export effectué : {out}")
