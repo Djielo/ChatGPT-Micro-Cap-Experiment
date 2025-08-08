@@ -1,5 +1,7 @@
 import os
 import json
+import time
+import errno
 from typing import Iterable, Dict, Any, Tuple
 
 
@@ -63,5 +65,39 @@ def write_json_atomic(path: str, data: Any) -> None:
     with open(tmp_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
     os.replace(tmp_path, path)
+
+
+# -------- Locks simples (file-based) ---------
+LOCKS_DIR = os.path.join("enhanced_system", "data", "locks")
+
+
+def acquire_lock(lock_name: str, timeout_seconds: int = 3600, poll_seconds: float = 1.0) -> str:
+    """
+    Acquire un verrou fichier exclusif (création atomique). Attend jusqu'à timeout.
+    Retourne le chemin du lock à utiliser ensuite dans release_lock().
+    """
+    safe_ensure_dir(LOCKS_DIR)
+    lock_path = os.path.join(LOCKS_DIR, f"{lock_name}.lock")
+    start = time.time()
+    while True:
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            with os.fdopen(fd, "w", encoding="utf-8") as f:
+                f.write(str(os.getpid()))
+            return lock_path
+        except OSError as e:
+            if e.errno != errno.EEXIST:
+                raise
+            if time.time() - start > timeout_seconds:
+                raise TimeoutError(f"Timeout acquisition lock: {lock_name}")
+            time.sleep(poll_seconds)
+
+
+def release_lock(lock_path: str) -> None:
+    try:
+        if os.path.exists(lock_path):
+            os.remove(lock_path)
+    except Exception:
+        pass
 
 

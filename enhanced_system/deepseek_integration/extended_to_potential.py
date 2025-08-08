@@ -21,6 +21,8 @@ from enhanced_system.common.utils import (
     normalize_exchange,
     safe_ensure_dir,
     write_json_atomic,
+    acquire_lock,
+    release_lock,
 )
 
 
@@ -313,11 +315,15 @@ def write_outputs(df_out: pd.DataFrame) -> None:
 
 
 def main() -> None:
-    df = load_input()
-    result = filter_and_score(df)
-    result = status_and_changes(result)
-    write_outputs(result)
-    print(f"extended_to_potential.csv écrit ({len(result)} lignes)")
+    lock = acquire_lock("extended_to_potential", timeout_seconds=7200)
+    try:
+        df = load_input()
+        result = filter_and_score(df)
+        result = status_and_changes(result)
+        write_outputs(result)
+        print(f"extended_to_potential.csv écrit ({len(result)} lignes)")
+    finally:
+        release_lock(lock)
 
 
 if __name__ == "__main__":

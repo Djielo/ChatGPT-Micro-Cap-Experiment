@@ -17,7 +17,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from enhanced_system.common.utils import safe_ensure_dir, write_json_atomic
+from enhanced_system.common.utils import safe_ensure_dir, write_json_atomic, acquire_lock, release_lock
 from enhanced_system.deepseek_integration.config import (
     RATE_LIMIT_DELAY,
     DS_CACHE_DIR,
@@ -118,7 +118,9 @@ def _to_cache(ticker: str, run_date: str, schedule_slot: str, data: Dict[str, An
 
 
 def run_step(limit: int | None = None, only_new: bool = False, force_refresh: bool = False) -> None:
-    df = _load_input()
+    lock = acquire_lock("DS_potential_to_pepite", timeout_seconds=14400)
+    try:
+        df = _load_input()
 
     # Sous-échantillonnage optionnel
     if only_new and "Status" in df.columns:
@@ -248,7 +250,9 @@ def run_step(limit: int | None = None, only_new: bool = False, force_refresh: bo
 
     write_json_atomic(archive_path, current)
 
-    print(f"potential_to_pepite.csv écrit ({len(df_out)} lignes)")
+        print(f"potential_to_pepite.csv écrit ({len(df_out)} lignes)")
+    finally:
+        release_lock(lock)
 
 
 if __name__ == "__main__":
