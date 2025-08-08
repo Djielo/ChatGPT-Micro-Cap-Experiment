@@ -1,0 +1,7 @@
+EN 2 ETAPES :
+
+// PS D:\DEV_CODE\MicroCapExperiment> //
+& d:/DEV_CODE/MicroCapExperiment/.venv/Scripts/Activate.ps1
+
+// (.venv) PS D:\DEV_CODE\MicroCapExperiment> //
+cd enhanced_system/deepseek_integration && streamlit run microcap_viewer.py

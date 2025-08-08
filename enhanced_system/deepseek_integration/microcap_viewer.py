@@ -130,23 +130,36 @@ with col2:
         css_styles="{ border:1px solid #f472b6; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height:375px; }"
     ):
         st.markdown("### 🔍 Filtres")
-        col2a, col2b = st.columns(2)
+        col2a, col2b = st.columns([1, 2])
         with col2a:
             if "Market" in df.columns:
-                markets = st.multiselect(
-                    "Marchés",
-                    options=sorted(df["Market"].dropna().unique()),
-                    default=sorted(df["Market"].dropna().unique()),
-                )
+                st.markdown("**Marchés :**")
+                market_options = sorted(df["Market"].dropna().unique())
+                markets = []
+                for market in market_options:
+                    if st.checkbox(market, key=f"market_{market}"):
+                        markets.append(market)
             else:
                 markets = []
         with col2b:
             if "Sector" in df.columns:
-                sectors = st.multiselect(
-                    "Secteurs",
-                    options=sorted(df["Sector"].dropna().unique()),
-                    default=sorted(df["Sector"].dropna().unique()),
-                )
+                st.markdown("**Secteurs :**")
+                sector_options = sorted(df["Sector"].dropna().unique())
+                sectors = []
+                
+                # Organiser les secteurs en 2 colonnes
+                col2b1, col2b2 = st.columns(2)
+                mid_point = len(sector_options) // 2
+                
+                with col2b1:
+                    for sector in sector_options[:mid_point]:
+                        if st.checkbox(sector, key=f"sector_{sector}"):
+                            sectors.append(sector)
+                
+                with col2b2:
+                    for sector in sector_options[mid_point:]:
+                        if st.checkbox(sector, key=f"sector_{sector}"):
+                            sectors.append(sector)
             else:
                 sectors = []
 
