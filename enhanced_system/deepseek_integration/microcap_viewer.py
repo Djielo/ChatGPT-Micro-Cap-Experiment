@@ -6,10 +6,18 @@ st.set_page_config(page_title="Microcap Viewer", layout="wide")
 
 st.title("📊 Microcaps Viewer – Analyse et Scoring interactif")
 
+# Bouton pour ouvrir/fermer tous les menus
+col_btn1, col_btn2, col_btn3 = st.columns([0.3, 0.4, 0.3])
+with col_btn2:
+    if st.button("🔄 Ouvrir/Fermer tous les menus", type="secondary"):
+        # Inverse l'état actuel
+        current_state = st.session_state.get('all_expanded', False)
+        st.session_state['all_expanded'] = not current_state
+
 # === 1. Contrôles compacts en haut ===
 col1, col2, col3, col4 = st.columns([0.2, 0.4, 0.2, 0.2])
 with col1:
-    with st.expander("🎛️ Contrôles", expanded=False):
+    with st.expander("🎛️ Contrôles", expanded=st.session_state.get('all_expanded', False)):
         with stylable_container(
             key="controls_card",
             css_styles="""
@@ -124,7 +132,7 @@ else:
     df = load_final_pepites()
 
 with col2:
-    with st.expander("🔍 Filtres", expanded=False):
+    with st.expander("🔍 Filtres", expanded=st.session_state.get('all_expanded', False)):
         with stylable_container(
             key="filters_card", 
             css_styles="{ border:1px solid #f472b6; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height: 375px; }"
@@ -163,7 +171,7 @@ with col2:
                     sectors = []
 
 with col3:
-    with st.expander("📊 Filtres numériques", expanded=False):
+    with st.expander("📊 Filtres numériques", expanded=st.session_state.get('all_expanded', False)):
         with stylable_container(
             key="numeric_card", 
             css_styles="{ border:1px solid #a78bfa; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height: 375px; }"
@@ -215,7 +223,7 @@ with col3:
                     )
 
 with col4:
-    with st.expander("📈 Poids du Scoring", expanded=False):
+    with st.expander("📈 Poids du Scoring", expanded=st.session_state.get('all_expanded', False)):
         with stylable_container(
             key="weights_card", 
             css_styles="{ border:1px solid #34d399; border-radius:14px; padding:14px 16px; background:rgba(17,24,39,.75); min-height: 375px; }"
