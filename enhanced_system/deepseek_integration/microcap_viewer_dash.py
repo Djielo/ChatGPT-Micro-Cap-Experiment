@@ -71,6 +71,8 @@ def load_final_pepites():
 
 # === 2. Layout Dash ===
 app.layout = html.Div([
+
+    
     # Header
     html.Div([
         html.H1("📊 Microcaps Viewer – Analyse et Scoring interactif", 
