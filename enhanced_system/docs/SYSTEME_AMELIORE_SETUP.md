@@ -105,6 +105,19 @@ Note: tenir compte des changements d’heure (DST) et ajuster notamment l’hora
 
 ---
 
+## 🖥️ Visualisation — Microcap Viewer (mise à jour)
+
+- Fichier: `enhanced_system/deepseek_integration/microcap_viewer.py`
+- Fonctions clés:
+  - Sélection « Univers » (`micro_caps_extended.csv`) ou « Potentiels » (`extended_to_potential.csv`).
+  - Scoring dynamique via sliders:
+    - Univers: `Score = w_price×(1/Price) + w_volume×(Volume_M) + w_cap×(1/MarketCap)` [+ `w_short×ShortRatio` si dispo].
+    - Potentiels: tri par `ScorePotential` ou `ScoreComposite = w_sp×ScorePotential + w_price×(1/Price) + w_volume×(Volume_M) + w_cap×(1/MarketCap)`.
+  - Aide intégrée (expander) expliquant les formules.
+  - Étiquettes de champs corrigées (compatibilité accessibilité).
+
+---
+
 ## 🔧 Étape 1 : Vérification des Dépendances
 
 ### 1.1 Python Environment

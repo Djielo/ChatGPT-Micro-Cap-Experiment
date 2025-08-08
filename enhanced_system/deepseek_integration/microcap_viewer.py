@@ -1,50 +1,90 @@
 import streamlit as st
 import pandas as pd
 
-# === 1. Chargement des données ===
+st.set_page_config(page_title="Microcap Viewer", layout="wide")
+
+# === 1. Choix du dataset ===
+dataset_choice = st.sidebar.radio(
+    "Dataset",
+    [
+        "Univers (micro_caps_extended)",
+        "Potentiels (extended_to_potential)",
+    ],
+    index=0,
+)
+
+
 @st.cache_data
-def load_data():
-    # Chargement avec parsing amélioré pour gérer les virgules dans les noms
-    df = pd.read_csv("enhanced_system/data/micro_caps_extended.csv", 
-                     quotechar='"', 
-                     escapechar='\\', 
-                     encoding='utf-8')
-    
-    # Vérification des colonnes attendues
-    expected_columns = ["Ticker", "Name", "Market Cap", "Price", "Sector", "Market", "Volume", "shortRatio"]
-    missing_columns = [col for col in expected_columns if col not in df.columns]
-    
-    if missing_columns:
-        st.error(f"❌ Colonnes manquantes: {missing_columns}")
+def load_universe():
+    df = pd.read_csv(
+        "enhanced_system/data/micro_caps_extended.csv",
+        quotechar='"',
+        escapechar='\\',
+        encoding='utf-8',
+    )
+    expected_columns = [
+        "Ticker",
+        "Name",
+        "Market Cap",
+        "Price",
+        "Sector",
+        "Market",
+        "Volume",
+    ]
+    missing = [c for c in expected_columns if c not in df.columns]
+    if missing:
+        st.error(f"❌ Colonnes manquantes: {missing}")
         st.write("Colonnes disponibles:", df.columns.tolist())
         return pd.DataFrame()
-    
-    # Nettoyage des données
-    df = df.dropna(subset=["Market Cap", "Price", "Volume"])
-    
-    # Debug: afficher les premières lignes
-    st.subheader("🔍 Aperçu des données chargées")
-    st.write(f"📊 {len(df)} lignes chargées")
-    st.write("Colonnes:", df.columns.tolist())
-    st.write("Premières lignes:")
-    st.dataframe(df.head())
-    
+    return df.dropna(subset=["Market Cap", "Price", "Volume"]) 
+
+
+@st.cache_data
+def load_potentials():
+    df = pd.read_csv(
+        "enhanced_system/data/extended_to_potential.csv",
+        encoding='utf-8',
+    )
+    # Harmoniser quelques noms pour réutiliser une partie des filtres
+    if "MarketCap" in df.columns and "Market Cap" not in df.columns:
+        df = df.rename(columns={"MarketCap": "Market Cap"})
+    if "Exchange" in df.columns and "Market" not in df.columns:
+        df = df.rename(columns={"Exchange": "Market"})
+    if "CompanyName" in df.columns and "Name" not in df.columns:
+        df = df.rename(columns={"CompanyName": "Name"})
+    # Colonnes minimales
+    expected_columns = ["Ticker", "Market Cap", "Price", "Volume", "Sector", "Market", "ScorePotential"]
+    missing = [c for c in expected_columns if c not in df.columns]
+    if missing:
+        st.warning(f"ℹ️ Dataset potentiels: colonnes manquantes non bloquantes: {missing}")
     return df
 
-df = load_data()
 
-st.set_page_config(page_title="Microcap Viewer", layout="wide")
+df = load_universe() if dataset_choice.startswith("Univers") else load_potentials()
+
 
 st.title("📊 Microcaps Viewer – Analyse et Scoring interactif")
 
 # === 2. Sidebar : Filtres ===
 st.sidebar.header("🔎 Filtres")
 
-# Marché
-markets = st.sidebar.multiselect("Marchés", options=sorted(df["Market"].dropna().unique()), default=sorted(df["Market"].dropna().unique()))
+if "Market" in df.columns:
+    markets = st.sidebar.multiselect(
+        "Marchés",
+        options=sorted(df["Market"].dropna().unique()),
+        default=sorted(df["Market"].dropna().unique()),
+    )
+else:
+    markets = []
 
-# Secteurs
-sectors = st.sidebar.multiselect("Secteurs", options=sorted(df["Sector"].dropna().unique()), default=sorted(df["Sector"].dropna().unique()))
+if "Sector" in df.columns:
+    sectors = st.sidebar.multiselect(
+        "Secteurs",
+        options=sorted(df["Sector"].dropna().unique()),
+        default=sorted(df["Sector"].dropna().unique()),
+    )
+else:
+    sectors = []
 
 # === Filtres numériques avec champs de saisie ===
 st.sidebar.markdown("### 📊 Filtres numériques")
@@ -60,9 +100,9 @@ use_cap_filter = st.sidebar.checkbox(
 if use_cap_filter:
     col1, col2 = st.sidebar.columns(2)
     with col1:
-        cap_min = st.number_input("", min_value=0, max_value=100_000, value=74, label_visibility="collapsed")
+        cap_min = st.number_input("Min (M$)", min_value=0, max_value=100_000, value=74, label_visibility="collapsed")
     with col2:
-        cap_max = st.number_input("", min_value=0, max_value=100_000, value=75, label_visibility="collapsed")
+        cap_max = st.number_input("Max (M$)", min_value=0, max_value=100_000, value=75, label_visibility="collapsed")
     cap_range = (cap_min * 1_000_000, cap_max * 1_000_000)
 else:
     cap_range = (0, float('inf'))
@@ -77,9 +117,9 @@ use_price_filter = st.sidebar.checkbox(
 if use_price_filter:
     col1, col2 = st.sidebar.columns(2)
     with col1:
-        price_min = st.number_input("", min_value=0.0, max_value=1000.0, value=1.0, step=0.1, label_visibility="collapsed")
+        price_min = st.number_input("Min $", min_value=0.0, max_value=1000.0, value=1.0, step=0.1, label_visibility="collapsed")
     with col2:
-        price_max = st.number_input("", min_value=0.0, max_value=1000.0, value=30.0, step=0.1, label_visibility="collapsed")
+        price_max = st.number_input("Max $", min_value=0.0, max_value=1000.0, value=30.0, step=0.1, label_visibility="collapsed")
     price_range = (price_min, price_max)
 else:
     price_range = (0.0, float('inf'))
@@ -94,81 +134,159 @@ use_volume_filter = st.sidebar.checkbox(
 if use_volume_filter:
     col1, col2 = st.sidebar.columns(2)
     with col1:
-        volume_min = st.number_input("", min_value=0, max_value=100_000_000, value=1000, step=1000, label_visibility="collapsed")
+        volume_min = st.number_input("Min Vol", min_value=0, max_value=100_000_000, value=1000, step=1000, label_visibility="collapsed")
     with col2:
-        volume_max = st.number_input("", min_value=0, max_value=100_000_000, value=1000000, step=1000, label_visibility="collapsed")
+        volume_max = st.number_input("Max Vol", min_value=0, max_value=100_000_000, value=1000000, step=1000, label_visibility="collapsed")
     volume_range = (volume_min, volume_max)
 else:
     volume_range = (0, float('inf'))
 
-# Short Ratio
-if "shortRatio" in df.columns:
+short_ratio_range = (0.0, 1.0)
+if dataset_choice.startswith("Univers") and "shortRatio" in df.columns:
     short_ratio_max = df["shortRatio"].max(skipna=True)
     if pd.notna(short_ratio_max):
-        short_ratio_range = st.sidebar.slider("Short Ratio", 0.0, float(short_ratio_max), (0.0, float(short_ratio_max)))
-    else:
-        short_ratio_range = (0.0, 1.0)
-else:
-    short_ratio_range = (0.0, 1.0)
+        short_ratio_range = st.sidebar.slider(
+            "Short Ratio", 0.0, float(short_ratio_max), (0.0, float(short_ratio_max))
+        )
 
 # === 3. Sidebar : Scoring ===
 st.sidebar.header("📈 Poids du Scoring")
 
-w_price = st.sidebar.slider("📉 Poids Prix (1/Prix)", 0.0, 10.0, 2.0)
-w_volume = st.sidebar.slider("🔊 Poids Volume", 0.0, 10.0, 1.0)
-w_cap = st.sidebar.slider("🏢 Poids Market Cap (inverse)", 0.0, 5.0, 0.5)
-w_short = st.sidebar.slider("⚠️ Poids Short Ratio", 0.0, 10.0, 3.0) if "shortRatio" in df.columns else 0
+if dataset_choice.startswith("Univers"):
+    w_price = st.sidebar.slider(
+        "📉 Poids Prix (1/Prix)", 0.0, 10.0, 2.0,
+        help="Plus le prix est bas, plus la contribution est élevée (1/Prix)."
+    )
+    w_volume = st.sidebar.slider(
+        "🔊 Poids Volume", 0.0, 10.0, 1.0,
+        help="Volume (en millions) accentue la liquidité."
+    )
+    w_cap = st.sidebar.slider(
+        "🏢 Poids Market Cap (inverse)", 0.0, 5.0, 0.5,
+        help="Favorise les capitalisations plus petites (1/Market Cap)."
+    )
+    w_short = st.sidebar.slider(
+        "⚠️ Poids Short Ratio", 0.0, 10.0, 3.0,
+        help="Accentue les valeurs avec un short ratio élevé (potentiel squeeze)."
+    ) if "shortRatio" in df.columns else 0
+else:
+    use_composite = st.sidebar.checkbox(
+        "Activer Score composite (Potentiels)", value=True,
+        help="Combine ScorePotential (Étape 1) avec des facteurs simples (Prix, Volume, MC)."
+    )
+    w_sp = st.sidebar.slider(
+        "⭐ Poids ScorePotential", 0.0, 3.0, 1.0,
+        help="Importance du ScorePotential calculé par Étape 1."
+    )
+    w_price = st.sidebar.slider(
+        "📉 Poids Prix (1/Prix)", 0.0, 5.0, 0.5,
+        help="Plus le prix est bas, plus la contribution est élevée (1/Prix)."
+    )
+    w_volume = st.sidebar.slider(
+        "🔊 Poids Volume", 0.0, 5.0, 0.5,
+        help="Volume (en millions) accentue la liquidité."
+    )
+    w_cap = st.sidebar.slider(
+        "🏢 Poids Market Cap (inverse)", 0.0, 3.0, 0.2,
+        help="Favorise les capitalisations plus petites (1/Market Cap)."
+    )
 
-# === 4. Application des filtres ===
-filtered = df[
-    df["Market"].isin(markets) &
-    df["Sector"].isin(sectors) &
-    df["Market Cap"].between(*cap_range) &
-    df["Price"].between(*price_range) &
-    df["Volume"].between(*volume_range)
-]
-
-if "shortRatio" in df.columns:
+filtered = df.copy()
+if "Market" in filtered.columns and markets:
+    filtered = filtered[filtered["Market"].isin(markets)]
+if "Sector" in filtered.columns and sectors:
+    filtered = filtered[filtered["Sector"].isin(sectors)]
+if "Market Cap" in filtered.columns:
+    filtered = filtered[filtered["Market Cap"].between(*cap_range)]
+if "Price" in filtered.columns:
+    filtered = filtered[filtered["Price"].between(*price_range)]
+if "Volume" in filtered.columns:
+    filtered = filtered[filtered["Volume"].between(*volume_range)]
+if dataset_choice.startswith("Univers") and "shortRatio" in filtered.columns:
     filtered = filtered[filtered["shortRatio"].between(*short_ratio_range)]
 
-# === 5. Calcul du Score ===
-filtered["Score"] = (
-    w_price / filtered["Price"].replace(0, 1) +
-    w_volume * (filtered["Volume"] / 1_000_000) +
-    w_cap / filtered["Market Cap"].replace(0, 1)
-)
-
-if "shortRatio" in df.columns:
-    filtered["Score"] += w_short * filtered["shortRatio"].fillna(0)
-
-# Nettoyer les scores NaN
-filtered["Score"] = filtered["Score"].fillna(0)
-
-filtered = filtered.sort_values("Score", ascending=False).reset_index(drop=True)
+if dataset_choice.startswith("Univers"):
+    # === 5. Calcul du Score ===
+    filtered["Score"] = (
+        w_price / filtered["Price"].replace(0, 1) +
+        w_volume * (filtered["Volume"] / 1_000_000) +
+        w_cap / filtered["Market Cap"].replace(0, 1)
+    )
+    if "shortRatio" in df.columns:
+        filtered["Score"] += w_short * filtered["shortRatio"].fillna(0)
+    filtered["Score"] = filtered["Score"].fillna(0)
+    filtered = filtered.sort_values("Score", ascending=False).reset_index(drop=True)
+else:
+    # Tri par ScorePotential si disponible
+    if "ScorePotential" in filtered.columns:
+        if "Market Cap" in filtered.columns and "Price" in filtered.columns and "Volume" in filtered.columns and use_composite:
+            filtered["ScoreComposite"] = (
+                w_sp * filtered["ScorePotential"].fillna(0) +
+                w_price / filtered["Price"].replace(0, 1) +
+                w_volume * (filtered["Volume"] / 1_000_000) +
+                w_cap / filtered["Market Cap"].replace(0, 1)
+            ).fillna(0)
+            filtered = filtered.sort_values("ScoreComposite", ascending=False).reset_index(drop=True)
+        else:
+            filtered = filtered.sort_values("ScorePotential", ascending=False).reset_index(drop=True)
 
 # === 6. Affichage tableau et détails ===
-st.markdown(f"### 🎯 {len(filtered)} micro-caps affichées après filtrage")
+st.markdown(f"### 🎯 {len(filtered)} lignes affichées après filtrage")
 
-selected_index = st.selectbox("Sélectionner une ligne pour détails 👇", range(len(filtered)), format_func=lambda i: filtered.iloc[i]["Ticker"] if len(filtered) > 0 else "—")
+with st.expander("ℹ️ Aide sur le scoring"):
+    if dataset_choice.startswith("Univers"):
+        st.markdown(
+            """
+            Score Univers = w_price × (1/Price) + w_volume × (Volume en millions) + w_cap × (1/Market Cap) [+ w_short × ShortRatio].
+            - w_price: favorise les prix bas (évite la division par 0)
+            - w_volume: met en avant la liquidité
+            - w_cap: favorise les petites capitalisations
+            - w_short: optionnel si la colonne est présente
+            """
+        )
+    else:
+        st.markdown(
+            """
+            Score Potentiels par défaut: tri par `ScorePotential` (calculé à l’Étape 1).
+            Option “Score composite”: ScoreComposite = w_sp × ScorePotential + w_price × (1/Price) + w_volume × (Volume en millions) + w_cap × (1/Market Cap).
+            """
+        )
 
-st.dataframe(filtered[["Ticker", "Name", "Market", "Sector", "Market Cap", "Price", "Volume", "shortRatio", "Score"]], use_container_width=True)
+if dataset_choice.startswith("Univers"):
+    selected_index = st.selectbox(
+        "Sélectionner une ligne pour détails 👇",
+        range(len(filtered)),
+        format_func=lambda i: filtered.iloc[i]["Ticker"] if len(filtered) > 0 else "—",
+    )
+    cols = ["Ticker", "Name", "Market", "Sector", "Market Cap", "Price", "Volume"]
+    if "shortRatio" in filtered.columns:
+        cols += ["shortRatio"]
+    cols += ["Score"]
+    st.dataframe(filtered[cols], use_container_width=True)
 
-if len(filtered) > 0:
-    selected_row = filtered.iloc[selected_index]
-    st.sidebar.markdown("### 🧾 Détail de l'entreprise sélectionnée")
-    st.sidebar.markdown(f"**Ticker :** `{selected_row['Ticker']}`")
-    st.sidebar.markdown(f"**Nom :** {selected_row['Name']}")
-    st.sidebar.markdown(f"**Marché :** {selected_row['Market']}")
-    st.sidebar.markdown(f"**Secteur :** {selected_row['Sector']}")
-    st.sidebar.markdown(f"**Market Cap :** ${int(selected_row['Market Cap']):,}")
-    st.sidebar.markdown(f"**Prix actuel :** ${selected_row['Price']:.2f}")
-    st.sidebar.markdown(f"**Volume :** {int(selected_row['Volume']):,}")
-    if "shortRatio" in selected_row:
-        st.sidebar.markdown(f"**Short Ratio :** {selected_row['shortRatio']}")
-    st.sidebar.markdown(f"[📎 Lien Yahoo Finance](https://finance.yahoo.com/quote/{selected_row['Ticker']})")
+    if len(filtered) > 0:
+        sel = filtered.iloc[selected_index]
+        st.sidebar.markdown("### 🧾 Détail de l'entreprise sélectionnée")
+        st.sidebar.markdown(f"**Ticker :** `{sel['Ticker']}`")
+        st.sidebar.markdown(f"**Nom :** {sel.get('Name','—')}")
+        st.sidebar.markdown(f"**Marché :** {sel.get('Market','—')}")
+        st.sidebar.markdown(f"**Secteur :** {sel.get('Sector','—')}")
+        if 'Market Cap' in sel:
+            st.sidebar.markdown(f"**Market Cap :** ${int(sel['Market Cap']):,}")
+        st.sidebar.markdown(f"**Prix actuel :** ${sel.get('Price',0):.2f}")
+        if 'Volume' in sel:
+            st.sidebar.markdown(f"**Volume :** {int(sel['Volume']):,}")
+        if "shortRatio" in sel:
+            st.sidebar.markdown(f"**Short Ratio :** {sel['shortRatio']}")
+        st.sidebar.markdown(f"[📎 Yahoo Finance](https://finance.yahoo.com/quote/{sel['Ticker']})")
+else:
+    # Vue Potentiels
+    cols = [c for c in ["Ticker","Name","Market","Sector","Market Cap","Price","Volume","ScorePotential","ScoreComposite","ReasonsTags","Comments","Status","Date"] if c in filtered.columns]
+    st.dataframe(filtered[cols], use_container_width=True)
 
 # === 7. Export CSV filtré
 st.sidebar.markdown("---")
 if st.sidebar.button("📤 Exporter en CSV"):
-    filtered.to_csv("filtered_microcaps.csv", index=False)
-    st.sidebar.success("✅ Export effectué : filtered_microcaps.csv")
+    out = "filtered_microcaps.csv" if dataset_choice.startswith("Univers") else "filtered_potentials.csv"
+    filtered.to_csv(out, index=False)
+    st.sidebar.success(f"Export effectué : {out}")

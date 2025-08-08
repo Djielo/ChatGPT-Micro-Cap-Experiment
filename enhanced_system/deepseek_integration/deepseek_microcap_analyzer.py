@@ -13,8 +13,8 @@ from datetime import datetime
 import yfinance as yf
 
 # Configuration DeepSeek
-DEEPSEEK_API_KEY = "sk-260c4a1a7bce4f17b504fa08cbb8127c"
-DEEPSEEK_BASE_URL = "https://api.deepseek.com/v1"
+import os
+from .config import DEEPSEEK_API_KEY, DEEPSEEK_BASE_URL, REQUEST_TIMEOUT, RATE_LIMIT_DELAY, MAX_RETRIES
 
 class DeepSeekMicroCapAnalyzer:
     """
@@ -24,6 +24,8 @@ class DeepSeekMicroCapAnalyzer:
     def __init__(self):
         self.setup_logging()
         self.logger.info("🔍 DeepSeek MicroCap Analyzer initialisé")
+        if not DEEPSEEK_API_KEY:
+            raise RuntimeError("DEEPSEEK_API_KEY manquante. Définissez-la dans vos variables d'environnement.")
         
         # Statistiques d'utilisation
         self.api_calls_made = 0

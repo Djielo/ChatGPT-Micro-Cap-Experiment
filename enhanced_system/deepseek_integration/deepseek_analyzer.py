@@ -19,9 +19,11 @@ class DeepSeekAnalyzer:
     
     def __init__(self, api_key: str = None):
         self.setup_logging()
-        # Clé API directe pour éviter les problèmes d'import
-        self.api_key = api_key or 'sk-260c4a1a7bce4f17b504fa08cbb8127c'
-        self.base_url = 'https://api.deepseek.com/v1'
+        # Clé API depuis l'environnement (via config)
+        self.api_key = api_key or DEEPSEEK_API_KEY
+        self.base_url = DEEPSEEK_BASE_URL
+        if not self.api_key:
+            raise RuntimeError("DEEPSEEK_API_KEY manquante. Définissez-la dans vos variables d'environnement.")
         self.logger.info("🔍 Module DeepSeek initialisé")
         
     def setup_logging(self):

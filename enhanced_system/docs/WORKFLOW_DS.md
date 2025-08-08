@@ -119,6 +119,19 @@ Structure d’archive JSON (exemple minimal):
 
 ---
 
+### Visualisation Streamlit (Univers/Potentiels)
+
+- Application: `enhanced_system/deepseek_integration/microcap_viewer.py`
+- Sélecteur de dataset dans la sidebar:
+  - « Univers (micro_caps_extended) »
+  - « Potentiels (extended_to_potential) »
+- Scoring affiché et contrôlable par sliders:
+  - Univers: `Score = w_price×(1/Price) + w_volume×(Volume_M) + w_cap×(1/MarketCap) [+ w_short×ShortRatio]`
+  - Potentiels (optionnel): `ScoreComposite = w_sp×ScorePotential + w_price×(1/Price) + w_volume×(Volume_M) + w_cap×(1/MarketCap)`; sinon tri par `ScorePotential`.
+- Aide intégrée (“ℹ️ Aide sur le scoring”) détaillant les formules.
+
+---
+
 ### Étape 2 — `DS_potential_to_pepite.py` (DeepSeek requis)
 
 **But**: enquête web pour identifier/valider des pépites.
@@ -268,3 +281,17 @@ Rétention:
 
 - Étape 1 reste simple, performante et traçable; Étape 2 concentre le coût IA sur un sous-ensemble pertinent; Étape 3 transforme l’info en décision opérationnelle.
 - Les **JSON d’archive** constituent la base d’apprentissage HRM; les CSV servent de vue courante pour l’app et le monitoring.
+
+---
+
+### Politique Cache & Fallback DeepSeek
+
+- Objectif: éviter les doubles appels involontaires dans un même slot et disposer d’un résultat de secours en cas de timeout/ratelimit, sans empêcher la réanalyse complète à chaque créneau.
+- Cache minimal par `(ticker, run_date, schedule_slot)` stocké sous `enhanced_system/data/deepseek_cache/`.
+- Règles simples:
+  - Par défaut, l’étape 2 réanalyse tous les tickers à chaque slot.
+  - Si une ré-exécution du même slot survient (ex: relance script): on réutilise la réponse du cache si présente, sauf si `force_refresh=True`.
+  - En cas d’erreur API/timeout après retries, on retourne la dernière réponse du jour depuis le cache (si disponible) et on marque `status=fallback_cache` dans le JSON.
+- Rate limit conservateur:
+  - Concurrence max: 1 (séquentiel) à 2 (optionnel) selon `MAX_CONCURRENCY`.
+  - Délai entre requêtes: `RATE_LIMIT_DELAY` (par défaut 2.5s) + petit jitter pour désynchroniser.
