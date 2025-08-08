@@ -109,12 +109,15 @@ Note: tenir compte des changements d’heure (DST) et ajuster notamment l’hora
 
 - Fichier: `enhanced_system/deepseek_integration/microcap_viewer.py`
 - Fonctions clés:
-  - Sélection « Univers » (`micro_caps_extended.csv`) ou « Potentiels » (`extended_to_potential.csv`).
-  - Scoring dynamique via sliders:
-    - Univers: `Score = w_price×(1/Price) + w_volume×(Volume_M) + w_cap×(1/MarketCap)` [+ `w_short×ShortRatio` si dispo].
-    - Potentiels: tri par `ScorePotential` ou `ScoreComposite = w_sp×ScorePotential + w_price×(1/Price) + w_volume×(Volume_M) + w_cap×(1/MarketCap)`.
-  - Aide intégrée (expander) expliquant les formules.
-  - Étiquettes de champs corrigées (compatibilité accessibilité).
+  - **Vue "Univers"** (`micro_caps_extended.csv`) : Scoring dynamique via sliders
+  - **Vue "Potentiels"** (`extended_to_potential.csv`) : Tri par ScorePotential ou ScoreComposite
+  - **Vue "Analyses DS"** (`potential_to_pepite.csv`) : Résultats DeepSeek Étape 2
+  - **Vue "Final Pepites"** (`pepite_to_sharpratio.csv`) : Résultats finaux Étape 3
+  - **Formules de scoring** :
+    - Univers: `Score = w_price×(1/Price) + w_volume×(Volume_M) + w_cap×(1/MarketCap)` [+ `w_short×ShortRatio` si dispo]
+    - Potentiels: `ScoreComposite = w_sp×ScorePotential + w_price×(1/Price) + w_volume×(Volume_M) + w_cap×(1/MarketCap)`
+  - **Aide intégrée** : Tooltips (?) et expander expliquant les formules
+  - **Export CSV** : Export des données filtrées par vue
 
 ---
 

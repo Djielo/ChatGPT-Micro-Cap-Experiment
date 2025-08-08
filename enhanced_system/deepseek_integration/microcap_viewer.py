@@ -10,6 +10,7 @@ dataset_choice = st.sidebar.radio(
         "Univers (micro_caps_extended)",
         "Potentiels (extended_to_potential)",
         "Analyses DS (potential_to_pepite)",
+        "Final Pepites (pepite_to_sharpratio)",
     ],
     index=0,
 )
@@ -77,12 +78,30 @@ def load_ds_analysis():
     return df
 
 
+@st.cache_data
+def load_final_pepites():
+    df = pd.read_csv(
+        "enhanced_system/data/pepite_to_sharpratio.csv",
+        encoding='utf-8',
+    )
+    # Harmonisations légères
+    if "MarketCap" in df.columns and "Market Cap" not in df.columns:
+        df = df.rename(columns={"MarketCap": "Market Cap"})
+    if "Exchange" in df.columns and "Market" not in df.columns:
+        df = df.rename(columns={"Exchange": "Market"})
+    if "CompanyName" in df.columns and "Name" not in df.columns:
+        df = df.rename(columns={"CompanyName": "Name"})
+    return df
+
+
 if dataset_choice.startswith("Univers"):
     df = load_universe()
 elif dataset_choice.startswith("Potentiels"):
     df = load_potentials()
-else:
+elif dataset_choice.startswith("Analyses DS"):
     df = load_ds_analysis()
+else:
+    df = load_final_pepites()
 
 
 st.title("📊 Microcaps Viewer – Analyse et Scoring interactif")
@@ -251,7 +270,7 @@ elif dataset_choice.startswith("Potentiels"):
             filtered = filtered.sort_values("ScoreComposite", ascending=False).reset_index(drop=True)
         else:
             filtered = filtered.sort_values("ScorePotential", ascending=False).reset_index(drop=True)
-else:
+elif dataset_choice.startswith("Analyses DS"):
     # Vue Analyses DS: pas de recalcul, tri par confiance puis target/price
     if "DS_Confidence" in filtered.columns:
         # Si Price disponible, trier aussi par (DS_TargetPrice15d - Price)/Price
@@ -262,6 +281,10 @@ else:
                                .reset_index(drop=True)
         else:
             filtered = filtered.sort_values("DS_Confidence", ascending=False).reset_index(drop=True)
+else:
+    # Vue Final Pepites: tri par DS_SharpRatio
+    if "DS_SharpRatio" in filtered.columns:
+        filtered = filtered.sort_values("DS_SharpRatio", ascending=False).reset_index(drop=True)
 
 # === 6. Affichage tableau et détails ===
 st.markdown(f"### 🎯 {len(filtered)} lignes affichées après filtrage")
@@ -312,19 +335,26 @@ if dataset_choice.startswith("Univers"):
         if "shortRatio" in sel:
             st.sidebar.markdown(f"**Short Ratio :** {sel['shortRatio']}")
         st.sidebar.markdown(f"[📎 Yahoo Finance](https://finance.yahoo.com/quote/{sel['Ticker']})")
+elif dataset_choice.startswith("Potentiels"):
+    # Vue Potentiels
+    cols = [c for c in ["Ticker","Name","Market","Sector","Market Cap","Price","Volume","ScorePotential","ScoreComposite","ReasonsTags","Comments","Status","Date"] if c in filtered.columns]
+    st.dataframe(filtered[cols], use_container_width=True)
+elif dataset_choice.startswith("Analyses DS"):
+    # Vue Analyses DS
+    cols = [c for c in [
+        "Ticker","Name","Market","Sector","Market Cap","Price","Volume",
+        "ScorePotential","DS_Decision","DS_Confidence","DS_TargetPrice15d",
+        "MeetsCriteria","DS_Conviction","DS_Catalyseurs","DS_Risks","DS_Timestamp"
+    ] if c in filtered.columns]
+    st.dataframe(filtered[cols], use_container_width=True)
 else:
-    if dataset_choice.startswith("Potentiels"):
-        # Vue Potentiels
-        cols = [c for c in ["Ticker","Name","Market","Sector","Market Cap","Price","Volume","ScorePotential","ScoreComposite","ReasonsTags","Comments","Status","Date"] if c in filtered.columns]
-        st.dataframe(filtered[cols], use_container_width=True)
-    else:
-        # Vue Analyses DS
-        cols = [c for c in [
-            "Ticker","Name","Market","Sector","Market Cap","Price","Volume",
-            "ScorePotential","DS_Decision","DS_Confidence","DS_TargetPrice15d",
-            "MeetsCriteria","DS_Conviction","DS_Catalyseurs","DS_Risks","DS_Timestamp"
-        ] if c in filtered.columns]
-        st.dataframe(filtered[cols], use_container_width=True)
+    # Vue Final Pepites
+    cols = [c for c in [
+        "Ticker","Name","Market","Sector","Market Cap","Price","Volume",
+        "ScorePotential","DS_Decision","DS_Confidence","DS_TargetPrice15d",
+        "ExpectedReturn15d","Volatility30d","ShortSqueezeFactor","DS_SharpRatio"
+    ] if c in filtered.columns]
+    st.dataframe(filtered[cols], use_container_width=True)
 
 # === 7. Export CSV filtré
 st.sidebar.markdown("---")
@@ -333,7 +363,9 @@ if st.sidebar.button("📤 Exporter en CSV"):
         out = "filtered_microcaps.csv"
     elif dataset_choice.startswith("Potentiels"):
         out = "filtered_potentials.csv"
-    else:
+    elif dataset_choice.startswith("Analyses DS"):
         out = "filtered_ds_analysis.csv"
+    else:
+        out = "filtered_final_pepites.csv"
     filtered.to_csv(out, index=False)
     st.sidebar.success(f"Export effectué : {out}")

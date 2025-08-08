@@ -87,75 +87,78 @@ def run_step() -> None:
     try:
         df = pd.read_csv(INPUT_CSV)
 
-    if "MarketCap" in df.columns and "Market Cap" not in df.columns:
-        df = df.rename(columns={"MarketCap": "Market Cap"})
+        if "MarketCap" in df.columns and "Market Cap" not in df.columns:
+            df = df.rename(columns={"MarketCap": "Market Cap"})
 
-    paris = datetime.now(ZoneInfo("Europe/Paris"))
-    utc_ts = datetime.now(timezone.utc).isoformat()
-    run_date = paris.date().isoformat()
-    run_time = paris.time().strftime("%H:%M:%S")
-    schedule_slot = _choose_schedule_slot(paris)
+        paris = datetime.now(ZoneInfo("Europe/Paris"))
+        utc_ts = datetime.now(timezone.utc).isoformat()
+        run_date = paris.date().isoformat()
+        run_time = paris.time().strftime("%H:%M:%S")
+        schedule_slot = _choose_schedule_slot(paris)
 
-    # Calculs
-    df["ExpectedReturn15d"] = df.apply(_expected_return, axis=1)
-    df["ShortSqueezeFactor"] = df.apply(_short_squeeze_factor, axis=1)
-    df["Volatility30d"] = df.apply(_volatility_proxy, axis=1)
+        # Calculs
+        df["ExpectedReturn15d"] = df.apply(_expected_return, axis=1)
+        df["ShortSqueezeFactor"] = df.apply(_short_squeeze_factor, axis=1)
+        df["Volatility30d"] = df.apply(_volatility_proxy, axis=1)
 
-    conf = df.get("DS_Confidence", pd.Series([0.0] * len(df))).fillna(0).astype(float)
-    ret15 = df["ExpectedReturn15d"].fillna(0).astype(float)
-    vol30 = df["Volatility30d"].replace(0, 1e-6).astype(float)
-    ssf = (1.0 + 0.3 * df["ShortSqueezeFactor"].fillna(0).astype(float))
+        conf = df.get("DS_Confidence", pd.Series([0.0] * len(df))).fillna(0).astype(float)
+        ret15 = df["ExpectedReturn15d"].fillna(0).astype(float)
+        vol30 = df["Volatility30d"].replace(0, 1e-6).astype(float)
+        ssf = (1.0 + 0.3 * df["ShortSqueezeFactor"].fillna(0).astype(float))
 
-    df["DS_SharpRatio"] = (ret15 * conf * ssf) / vol30
+        df["DS_SharpRatio"] = (ret15 * conf * ssf) / vol30
 
-    # Tri final (confiance > ratio)
-    if "DS_Confidence" in df.columns:
-        df = df.sort_values(["DS_Confidence", "DS_SharpRatio"], ascending=[False, False]).reset_index(drop=True)
-    else:
-        df = df.sort_values(["DS_SharpRatio"], ascending=[False]).reset_index(drop=True)
+        # Tri final (confiance > ratio)
+        if "DS_Confidence" in df.columns:
+            df = df.sort_values(["DS_Confidence", "DS_SharpRatio"], ascending=[False, False]).reset_index(drop=True)
+        else:
+            df = df.sort_values(["DS_SharpRatio"], ascending=[False]).reset_index(drop=True)
 
-    # Écriture CSV
-    tmp = f"{OUTPUT_CSV}.tmp"
-    df.to_csv(tmp, index=False)
-    os.replace(tmp, OUTPUT_CSV)
+        # Écriture CSV
+        tmp = f"{OUTPUT_CSV}.tmp"
+        df.to_csv(tmp, index=False)
+        os.replace(tmp, OUTPUT_CSV)
 
-    # Archive JSON
-    archive_path = os.path.join(EVOL_DIR, f"pepite_to_sharpratio_{run_date}.json")
-    safe_ensure_dir(EVOL_DIR)
+        # Archive JSON
+        archive_path = os.path.join(EVOL_DIR, f"pepite_to_sharpratio_{run_date}.json")
+        safe_ensure_dir(EVOL_DIR)
 
-    metadata = {
-        "pipeline_step": "pepite_to_sharpratio",
-        "source_csv": os.path.relpath(INPUT_CSV),
-        "run_date": run_date,
-        "run_time": run_time,
-        "schedule_slot": schedule_slot,
-        "utc_timestamp": utc_ts,
-        "version": "1.0",
-    }
+        metadata = {
+            "pipeline_step": "pepite_to_sharpratio",
+            "source_csv": os.path.relpath(INPUT_CSV),
+            "run_date": run_date,
+            "run_time": run_time,
+            "schedule_slot": schedule_slot,
+            "utc_timestamp": utc_ts,
+            "version": "1.0",
+        }
 
-    counters = {
-        "total_input": int(len(df)),
-    }
+        counters = {
+            "total_input": int(len(df)),
+        }
 
-    items = _sanitize(df.to_dict(orient="records"))
+        items = _sanitize(df.to_dict(orient="records"))
 
-    if os.path.exists(archive_path):
-        try:
-            current = json.load(open(archive_path, "r", encoding="utf-8"))
-        except Exception:
+        if os.path.exists(archive_path):
+            try:
+                current = json.load(open(archive_path, "r", encoding="utf-8"))
+            except Exception:
+                current = {"metadata": metadata, "runs": []}
+        else:
             current = {"metadata": metadata, "runs": []}
-    else:
-        current = {"metadata": metadata, "runs": []}
 
-    current.setdefault("runs", []).append({
-        "run_id": datetime.now().strftime("%Y%m%d%H%M%S%f"),
-        "counters": counters,
-        "items": items,
-    })
+        current.setdefault("runs", []).append({
+            "run_id": datetime.now().strftime("%Y%m%d%H%M%S%f"),
+            "counters": counters,
+            "items": items,
+        })
 
-    write_json_atomic(archive_path, current)
+        write_json_atomic(archive_path, current)
 
-    print(f"pepite_to_sharpratio.csv écrit ({len(df)} lignes)")
+        print(f"pepite_to_sharpratio.csv écrit ({len(df)} lignes)")
+    except Exception as e:
+        print(f"❌ Erreur lors de l'exécution: {e}")
+        raise
     finally:
         release_lock(lock)
 

@@ -182,9 +182,7 @@ core_orchestrator/credentials.json
 
 # Cache DeepSeek et outputs générés
 enhanced_system/data/deepseek_cache/**
-enhanced_system/data/extended_to_potential.csv
-enhanced_system/data/potential_to_pepite.csv
-enhanced_system/data/final_pepites.csv
+enhanced_system/data/*.csv
 enhanced_system/data/evolution/*.json
 
 # ========================================

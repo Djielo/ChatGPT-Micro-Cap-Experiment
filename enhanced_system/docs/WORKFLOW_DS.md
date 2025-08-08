@@ -286,12 +286,53 @@ Rétention:
 
 ### Politique Cache & Fallback DeepSeek
 
-- Objectif: éviter les doubles appels involontaires dans un même slot et disposer d’un résultat de secours en cas de timeout/ratelimit, sans empêcher la réanalyse complète à chaque créneau.
+- Objectif: éviter les doubles appels involontaires dans un même slot et disposer d'un résultat de secours en cas de timeout/ratelimit, sans empêcher la réanalyse complète à chaque créneau.
 - Cache minimal par `(ticker, run_date, schedule_slot)` stocké sous `enhanced_system/data/deepseek_cache/`.
 - Règles simples:
-  - Par défaut, l’étape 2 réanalyse tous les tickers à chaque slot.
+  - Par défaut, l'étape 2 réanalyse tous les tickers à chaque slot.
   - Si une ré-exécution du même slot survient (ex: relance script): on réutilise la réponse du cache si présente, sauf si `force_refresh=True`.
-  - En cas d’erreur API/timeout après retries, on retourne la dernière réponse du jour depuis le cache (si disponible) et on marque `status=fallback_cache` dans le JSON.
+  - En cas d'erreur API/timeout après retries, on retourne la dernière réponse du jour depuis le cache (si disponible) et on marque `status=fallback_cache` dans le JSON.
 - Rate limit conservateur:
   - Concurrence max: 1 (séquentiel) à 2 (optionnel) selon `MAX_CONCURRENCY`.
   - Délai entre requêtes: `RATE_LIMIT_DELAY` (par défaut 2.5s) + petit jitter pour désynchroniser.
+
+---
+
+### Visualisation Streamlit
+
+Le `microcap_viewer.py` affiche quatre vues principales :
+
+#### Vue "Univers" (micro_caps_extended.csv)
+
+- **Scoring dynamique** : Score = w_price × (1/Price) + w_volume × (Volume en millions) + w_cap × (1/Market Cap) [+ w_short × ShortRatio]
+- **Filtres** : Marché, Secteur, Market Cap, Prix, Volume, Short Ratio
+- **Aide** : Tooltip (?) pour expliquer la formule de scoring
+
+#### Vue "Potentiels" (extended_to_potential.csv)
+
+- **Tri par défaut** : `ScorePotential` (calculé Étape 1)
+- **Option composite** : ScoreComposite = w_sp × ScorePotential + w_price × (1/Price) + w_volume × (Volume en millions) + w_cap × (1/Market Cap)
+- **Colonnes** : Ticker, Name, Market, Sector, Market Cap, Price, Volume, ScorePotential, ScoreComposite, ReasonsTags, Comments, Status, Date
+
+#### Vue "Analyses DS" (potential_to_pepite.csv)
+
+- **Tri** : DS_Confidence (desc) puis (DS_TargetPrice15d - Price)/Price (desc)
+- **Colonnes** : Ticker, Name, Market, Sector, Market Cap, Price, Volume, ScorePotential, DS_Decision, DS_Confidence, DS_TargetPrice15d, MeetsCriteria, DS_Conviction, DS_Catalyseurs, DS_Risks, DS_Timestamp
+
+#### Vue "Final Pepites" (pepite_to_sharpratio.csv)
+
+- **Tri** : DS_SharpRatio (desc) - score final combinant ExpectedReturn15d, Volatility30d, ShortSqueezeFactor
+- **Colonnes** : Ticker, Name, Market, Sector, Market Cap, Price, Volume, ScorePotential, DS_Decision, DS_Confidence, DS_TargetPrice15d, ExpectedReturn15d, Volatility30d, ShortSqueezeFactor, DS_SharpRatio
+
+---
+
+### Configuration Windows Task Scheduler
+
+Script `enhanced_system/scheduler/setup_windows_scheduler.py` pour automatiser la configuration :
+
+- **Étape 0** : 5x/jour (09:00, 14:30, 18:00, 22:00, 01:00)
+- **Étape 1** : 5x/jour, +2min (09:02, 14:32, 18:02, 22:02, 01:02)
+- **Étape 2** : 3x/jour, +4min (14:34, 18:04, 22:04)
+- **Étape 3** : 3x/jour, +6min (14:36, 18:06, 22:06)
+
+Usage : `python enhanced_system/scheduler/setup_windows_scheduler.py` (nécessite droits administrateur)
