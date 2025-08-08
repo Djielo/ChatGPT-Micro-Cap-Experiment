@@ -10,3 +10,7 @@ asyncio
 # Microcaps App Dependencies
 pandas>=2.0.0
 streamlit>=1.24.0
+
+# Dash Migration Dependencies
+dash>=3.0.0
+plotly>=6.0.0
